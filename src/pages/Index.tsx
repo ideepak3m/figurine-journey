@@ -37,11 +37,12 @@ const Index = () => {
       <main className="flex-1">
         {/* Hero Section */}
         <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
+          <div className="absolute inset-0 bg-[hsl(var(--accent))]" />
           <div
-            className="absolute inset-0 bg-cover bg-center"
+            className="absolute inset-0 bg-contain bg-right bg-no-repeat"
             style={{ backgroundImage: `url(${heroImage})` }}
           >
-            <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/80 to-transparent" />
+            <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--accent))] via-[hsl(var(--accent))]/60 to-transparent" />
           </div>
           
           <div className="container mx-auto px-4 relative z-10">

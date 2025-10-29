@@ -3,7 +3,7 @@ import { ArrowRight, Heart, Sparkles, Users } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
-import heroImage from "@/assets/hero-figurines.jpg";
+import heroImage from "@/assets/hero-background.jpg";
 import productFamily from "@/assets/product-family.jpg";
 import productPet from "@/assets/product-pet.jpg";
 import productFestive from "@/assets/product-festive.jpg";

@@ -3,12 +3,34 @@ import { ArrowRight, Heart, Sparkles, Users } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 import heroImage from "@/assets/hero-background.jpg";
 import productFamily from "@/assets/product-family.jpg";
 import productPet from "@/assets/product-pet.jpg";
 import productFestive from "@/assets/product-festive.jpg";
+import showcase1 from "@/assets/showcase-1.jpg";
+import showcase2 from "@/assets/showcase-2.jpg";
+import showcase3 from "@/assets/showcase-3.jpg";
+import showcase4 from "@/assets/showcase-4.jpg";
+import showcase5 from "@/assets/showcase-5.jpg";
+import showcase6 from "@/assets/showcase-6.jpg";
 
 const Index = () => {
+  const showcaseImages = [
+    { image: showcase1, alt: "Elegant couple figurines under glass dome" },
+    { image: showcase2, alt: "Premium couple figurines with gold accent base" },
+    { image: showcase3, alt: "Modern figurine with pet companion" },
+    { image: showcase4, alt: "Fashion-forward figurine with accessories" },
+    { image: showcase5, alt: "Book lover figurine on artistic base" },
+    { image: showcase6, alt: "Sunflower-themed decorative figurine" },
+  ];
+
   const featuredProducts = [
     {
       image: productFamily,
@@ -35,33 +57,58 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative h-[600px] flex items-center justify-center overflow-hidden">
-          <div className="absolute inset-0 bg-[hsl(var(--accent))]" />
-          <div
-            className="absolute inset-0 bg-contain bg-right bg-no-repeat"
-            style={{ backgroundImage: `url(${heroImage})` }}
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-[hsl(var(--accent))] via-[hsl(var(--accent))]/60 to-transparent" />
-          </div>
-          
-          <div className="container mx-auto px-4 relative z-10">
-            <div className="max-w-2xl">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6 leading-tight">
-                From photo to charm—
-                <span className="text-primary"> custom figurines</span> that tell
-                your story
+        {/* Showcase Window Display */}
+        <section className="relative py-16 bg-gradient-to-b from-muted/30 to-background overflow-hidden">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-12">
+              <h1 className="text-5xl md:text-6xl font-bold mb-6">
+                Handcrafted Elegance
               </h1>
-              <p className="text-xl text-muted-foreground mb-8">
-                Handcrafted with love, each figurine captures the moments and
-                personalities that matter most to you.
+              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                Discover our exquisite collection of custom figurines, each piece
+                meticulously crafted to capture life's most precious moments
               </p>
-              <div className="flex flex-wrap gap-4">
+            </div>
+
+            <Carousel
+              opts={{
+                align: "center",
+                loop: true,
+              }}
+              className="w-full max-w-6xl mx-auto"
+            >
+              <CarouselContent>
+                {showcaseImages.map((item, index) => (
+                  <CarouselItem
+                    key={index}
+                    className="md:basis-1/2 lg:basis-1/3"
+                  >
+                    <div className="p-4">
+                      <div className="relative group overflow-hidden rounded-xl bg-card shadow-lg hover:shadow-2xl transition-all duration-300">
+                        <div className="aspect-[3/4] overflow-hidden">
+                          <img
+                            src={item.image}
+                            alt={item.alt}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                          />
+                        </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      </div>
+                    </div>
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious className="-left-12 hidden md:flex" />
+              <CarouselNext className="-right-12 hidden md:flex" />
+            </Carousel>
+
+            <div className="text-center mt-12">
+              <div className="flex flex-wrap gap-4 justify-center">
                 <Button size="lg" className="gap-2">
                   Shop Now <ArrowRight className="h-4 w-4" />
                 </Button>
                 <Button size="lg" variant="outline" className="gap-2">
-                  Create Yours
+                  Create Custom Order
                 </Button>
               </div>
             </div>

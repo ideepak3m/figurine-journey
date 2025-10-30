@@ -116,13 +116,7 @@ const Index = () => {
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="container mx-auto px-4">
                         <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
-                          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground drop-shadow-lg">
-                            {item.title}
-                          </h1>
-                          <p className="text-xl md:text-2xl text-foreground/90 drop-shadow-md">
-                            {item.subtitle}
-                          </p>
-                          <div className="flex flex-wrap gap-4 justify-center pt-6">
+                          <div className="flex flex-wrap gap-4 justify-center">
                             <Button size="lg" className="gap-2 shadow-lg">
                               Shop Now <ArrowRight className="h-4 w-4" />
                             </Button>
@@ -130,6 +124,12 @@ const Index = () => {
                               Create Custom Order
                             </Button>
                           </div>
+                          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground drop-shadow-lg">
+                            {item.title}
+                          </h1>
+                          <p className="text-xl md:text-2xl text-foreground/90 drop-shadow-md">
+                            {item.subtitle}
+                          </p>
                         </div>
                       </div>
                     </div>

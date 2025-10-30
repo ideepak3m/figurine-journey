@@ -23,11 +23,13 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center">
-            <img 
-              src={logo} 
-              alt="Figure It - Handcrafted doll ensembles" 
-              className="h-12 w-auto"
-            />
+            <div className="bg-accent/20 rounded-lg p-2 backdrop-blur-sm">
+              <img 
+                src={logo} 
+                alt="Figure It - Handcrafted doll ensembles" 
+                className="h-12 w-auto"
+              />
+            </div>
           </Link>
 
           {/* Desktop Navigation */}

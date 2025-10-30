@@ -124,10 +124,10 @@ const Index = () => {
                               Create Custom Order
                             </Button>
                           </div>
-                          <h2 className="text-3xl md:text-4xl lg:text-5xl font-bold text-foreground drop-shadow-lg">
+                          <h2 className="text-3xl md:text-4xl lg:text-5xl font-elegant font-bold text-foreground drop-shadow-lg">
                             {item.title}
                           </h2>
-                          <p className="text-lg md:text-xl text-foreground/90 drop-shadow-md">
+                          <p className="text-lg md:text-xl font-elegant text-foreground/90 drop-shadow-md">
                             {item.subtitle}
                           </p>
                         </div>

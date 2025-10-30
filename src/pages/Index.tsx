@@ -57,7 +57,7 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
-        {/* Showcase Window Display */}
+        {/* Hero Section */}
         <section className="relative py-16 bg-gradient-to-b from-muted/30 to-background overflow-hidden">
           <div className="container mx-auto px-4">
             <div className="text-center mb-12">
@@ -69,38 +69,6 @@ const Index = () => {
                 meticulously crafted to capture life's most precious moments
               </p>
             </div>
-
-            <Carousel
-              opts={{
-                align: "center",
-                loop: true,
-              }}
-              className="w-full max-w-6xl mx-auto"
-            >
-              <CarouselContent>
-                {showcaseImages.map((item, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="md:basis-1/2 lg:basis-1/3"
-                  >
-                    <div className="p-4">
-                      <div className="relative group overflow-hidden rounded-xl bg-card shadow-lg hover:shadow-2xl transition-all duration-300">
-                        <div className="aspect-[3/4] overflow-hidden">
-                          <img
-                            src={item.image}
-                            alt={item.alt}
-                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                          />
-                        </div>
-                        <div className="absolute inset-0 bg-gradient-to-t from-background/80 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                      </div>
-                    </div>
-                  </CarouselItem>
-                ))}
-              </CarouselContent>
-              <CarouselPrevious className="-left-12 hidden md:flex" />
-              <CarouselNext className="-right-12 hidden md:flex" />
-            </Carousel>
 
             <div className="text-center mt-12">
               <div className="flex flex-wrap gap-4 justify-center">

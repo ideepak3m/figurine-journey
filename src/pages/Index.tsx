@@ -105,13 +105,13 @@ const Index = () => {
             <CarouselContent>
               {bannerImages.map((item, index) => (
                 <CarouselItem key={index}>
-                  <div className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden">
+                  <div className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden bg-muted">
                     <img
                       src={item.image}
                       alt={item.alt}
-                      className="w-full h-full object-cover"
+                      className="w-full h-full object-contain"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent pointer-events-none" />
                     
                     <div className="absolute inset-0 flex items-center justify-center">
                       <div className="container mx-auto px-4">

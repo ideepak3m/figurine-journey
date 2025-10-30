@@ -10,25 +10,61 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import heroImage from "@/assets/hero-background.jpg";
 import productFamily from "@/assets/product-family.jpg";
 import productPet from "@/assets/product-pet.jpg";
 import productFestive from "@/assets/product-festive.jpg";
-import showcase1 from "@/assets/showcase-1.jpg";
-import showcase2 from "@/assets/showcase-2.jpg";
-import showcase3 from "@/assets/showcase-3.jpg";
-import showcase4 from "@/assets/showcase-4.jpg";
-import showcase5 from "@/assets/showcase-5.jpg";
-import showcase6 from "@/assets/showcase-6.jpg";
+import banner1 from "@/assets/banner-1.jpg";
+import banner2 from "@/assets/banner-2.jpg";
+import banner3 from "@/assets/banner-3.jpg";
+import banner4 from "@/assets/banner-4.jpg";
+import banner5 from "@/assets/banner-5.jpg";
+import banner6 from "@/assets/banner-6.jpg";
+import banner7 from "@/assets/banner-7.jpg";
 
 const Index = () => {
-  const showcaseImages = [
-    { image: showcase1, alt: "Elegant couple figurines under glass dome" },
-    { image: showcase2, alt: "Premium couple figurines with gold accent base" },
-    { image: showcase3, alt: "Modern figurine with pet companion" },
-    { image: showcase4, alt: "Fashion-forward figurine with accessories" },
-    { image: showcase5, alt: "Book lover figurine on artistic base" },
-    { image: showcase6, alt: "Sunflower-themed decorative figurine" },
+  const bannerImages = [
+    { 
+      image: banner1, 
+      alt: "Child reaching for colorful flower fairy figurines",
+      title: "Bring Magic to Life",
+      subtitle: "Whimsical creations that spark joy and wonder"
+    },
+    { 
+      image: banner2, 
+      alt: "Singer with custom talent figurine under glass dome",
+      title: "Celebrate the Talent",
+      subtitle: "Custom crafted for that special artist or performer"
+    },
+    { 
+      image: banner3, 
+      alt: "Artist painting with matching figurine",
+      title: "Magic Happens",
+      subtitle: "Transform your passion into a handcrafted keepsake"
+    },
+    { 
+      image: banner4, 
+      alt: "Pet owner with dog figurine keepsake",
+      title: "Memorable Keepsake",
+      subtitle: "Truly cherished moments preserved forever"
+    },
+    { 
+      image: banner5, 
+      alt: "Couple figurine in elegant glass display",
+      title: "Romance Captured",
+      subtitle: "Celebrate love with timeless artistry"
+    },
+    { 
+      image: banner6, 
+      alt: "Holiday gift figurine with Christmas tree",
+      title: "Perfect Gifts",
+      subtitle: "Heartfelt presents for every special occasion"
+    },
+    { 
+      image: banner7, 
+      alt: "Garden fairy figurine in glass dome",
+      title: "Nature's Beauty",
+      subtitle: "Enchanting pieces inspired by the natural world"
+    },
   ];
 
   const featuredProducts = [
@@ -57,30 +93,53 @@ const Index = () => {
       <Header />
       
       <main className="flex-1">
-        {/* Hero Section */}
-        <section className="relative py-16 bg-gradient-to-b from-muted/30 to-background overflow-hidden">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-12">
-              <h1 className="text-5xl md:text-6xl font-bold mb-6">
-                Handcrafted Elegance
-              </h1>
-              <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-                Discover our exquisite collection of custom figurines, each piece
-                meticulously crafted to capture life's most precious moments
-              </p>
-            </div>
-
-            <div className="text-center mt-12">
-              <div className="flex flex-wrap gap-4 justify-center">
-                <Button size="lg" className="gap-2">
-                  Shop Now <ArrowRight className="h-4 w-4" />
-                </Button>
-                <Button size="lg" variant="outline" className="gap-2">
-                  Create Custom Order
-                </Button>
-              </div>
-            </div>
-          </div>
+        {/* Hero Carousel Banner */}
+        <section className="relative w-full">
+          <Carousel
+            opts={{
+              align: "start",
+              loop: true,
+            }}
+            className="w-full"
+          >
+            <CarouselContent>
+              {bannerImages.map((item, index) => (
+                <CarouselItem key={index}>
+                  <div className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden">
+                    <img
+                      src={item.image}
+                      alt={item.alt}
+                      className="w-full h-full object-cover"
+                    />
+                    <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent" />
+                    
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <div className="container mx-auto px-4">
+                        <div className="max-w-3xl mx-auto text-center space-y-6 animate-fade-in">
+                          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-foreground drop-shadow-lg">
+                            {item.title}
+                          </h1>
+                          <p className="text-xl md:text-2xl text-foreground/90 drop-shadow-md">
+                            {item.subtitle}
+                          </p>
+                          <div className="flex flex-wrap gap-4 justify-center pt-6">
+                            <Button size="lg" className="gap-2 shadow-lg">
+                              Shop Now <ArrowRight className="h-4 w-4" />
+                            </Button>
+                            <Button size="lg" variant="outline" className="gap-2 shadow-lg bg-background/80 backdrop-blur-sm">
+                              Create Custom Order
+                            </Button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious className="left-4 md:left-8 bg-background/80 backdrop-blur-sm border-2" />
+            <CarouselNext className="right-4 md:right-8 bg-background/80 backdrop-blur-sm border-2" />
+          </Carousel>
         </section>
 
         {/* Features Section */}

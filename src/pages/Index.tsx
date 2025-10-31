@@ -53,6 +53,12 @@ const Index = () => {
     },
   ];
 
+  // Group images into pairs for 2-per-slide layout
+  const bannerSlides = [];
+  for (let i = 0; i < bannerImages.length; i += 2) {
+    bannerSlides.push(bannerImages.slice(i, i + 2));
+  }
+
   const featuredProducts = [
     {
       image: productFamily,
@@ -89,14 +95,20 @@ const Index = () => {
             className="w-full"
           >
             <CarouselContent>
-              {bannerImages.map((item, index) => (
-                <CarouselItem key={index}>
+              {bannerSlides.map((slide, slideIndex) => (
+                <CarouselItem key={slideIndex}>
                   <div className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden bg-muted">
-                    <img
-                      src={item.image}
-                      alt={item.alt}
-                      className="w-full h-full object-contain"
-                    />
+                    <div className="grid grid-cols-2 gap-1 h-full">
+                      {slide.map((item, itemIndex) => (
+                        <div key={itemIndex} className="relative h-full overflow-hidden">
+                          <img
+                            src={item.image}
+                            alt={item.alt}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                      ))}
+                    </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent pointer-events-none" />
                     
                     <div className="absolute inset-x-0 bottom-0 pb-8 md:pb-12">

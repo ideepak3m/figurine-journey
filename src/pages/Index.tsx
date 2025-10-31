@@ -26,44 +26,37 @@ const Index = () => {
     { 
       image: banner1, 
       alt: "Child reaching for colorful flower fairy figurines",
-      title: "Bring Magic to Life",
-      subtitle: "Whimsical creations that spark joy and wonder"
+      title: "Bring Magic to Life"
     },
     { 
       image: banner2, 
       alt: "Singer with custom talent figurine under glass dome",
-      title: "Celebrate the Talent",
-      subtitle: "Custom crafted for that special artist or performer"
+      title: "Celebrate the Talent"
     },
     { 
       image: banner3, 
       alt: "Artist painting with matching figurine",
-      title: "Magic Happens",
-      subtitle: "Transform your passion into a handcrafted keepsake"
+      title: "Magic Happens"
     },
     { 
       image: banner4, 
       alt: "Pet owner with dog figurine keepsake",
-      title: "Memorable Keepsake",
-      subtitle: "Truly cherished moments preserved forever"
+      title: "Memorable Keepsake"
     },
     { 
       image: banner5, 
       alt: "Couple figurine in elegant glass display",
-      title: "Romance Captured",
-      subtitle: "Celebrate love with timeless artistry"
+      title: "Romance Captured"
     },
     { 
       image: banner6, 
       alt: "Holiday gift figurine with Christmas tree",
-      title: "Perfect Gifts",
-      subtitle: "Heartfelt presents for every special occasion"
+      title: "Perfect Gifts"
     },
     { 
       image: banner7, 
       alt: "Garden fairy figurine in glass dome",
-      title: "Nature's Beauty",
-      subtitle: "Enchanting pieces inspired by the natural world"
+      title: "Nature's Beauty"
     },
   ];
 
@@ -127,9 +120,6 @@ const Index = () => {
                           <h2 className="text-3xl md:text-4xl lg:text-5xl font-elegant font-bold text-foreground drop-shadow-lg">
                             {item.title}
                           </h2>
-                          <p className="text-lg md:text-xl font-elegant text-foreground/90 drop-shadow-md">
-                            {item.subtitle}
-                          </p>
                         </div>
                       </div>
                     </div>

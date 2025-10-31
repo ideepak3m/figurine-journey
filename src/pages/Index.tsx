@@ -104,7 +104,7 @@ const Index = () => {
                           <img
                             src={item.image}
                             alt={item.alt}
-                            className="w-full h-full object-cover"
+                            className="w-full h-full object-contain"
                           />
                         </div>
                       ))}

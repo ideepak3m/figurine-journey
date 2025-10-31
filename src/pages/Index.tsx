@@ -25,38 +25,31 @@ const Index = () => {
   const bannerImages = [
     { 
       image: banner1, 
-      alt: "Child reaching for colorful flower fairy figurines",
-      title: "Bring Magic to Life"
+      alt: "Child reaching for colorful flower fairy figurines"
     },
     { 
       image: banner2, 
-      alt: "Singer with custom talent figurine under glass dome",
-      title: "Celebrate the Talent"
+      alt: "Singer with custom talent figurine under glass dome"
     },
     { 
       image: banner3, 
-      alt: "Artist painting with matching figurine",
-      title: "Magic Happens"
+      alt: "Artist painting with matching figurine"
     },
     { 
       image: banner4, 
-      alt: "Pet owner with dog figurine keepsake",
-      title: "Memorable Keepsake"
+      alt: "Pet owner with dog figurine keepsake"
     },
     { 
       image: banner5, 
-      alt: "Couple figurine in elegant glass display",
-      title: "Romance Captured"
+      alt: "Couple figurine in elegant glass display"
     },
     { 
       image: banner6, 
-      alt: "Holiday gift figurine with Christmas tree",
-      title: "Perfect Gifts"
+      alt: "Holiday gift figurine with Christmas tree"
     },
     { 
       image: banner7, 
-      alt: "Garden fairy figurine in glass dome",
-      title: "Nature's Beauty"
+      alt: "Garden fairy figurine in glass dome"
     },
   ];
 
@@ -117,9 +110,6 @@ const Index = () => {
                               Create Custom Order
                             </Button>
                           </div>
-                          <h2 className="text-3xl md:text-4xl lg:text-5xl font-elegant font-bold text-foreground drop-shadow-lg">
-                            {item.title}
-                          </h2>
                         </div>
                       </div>
                     </div>

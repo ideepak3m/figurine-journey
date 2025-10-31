@@ -21,36 +21,20 @@ const Header = () => {
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80">
       <div className="container mx-auto px-4">
-        <div className="flex h-16 items-center justify-center relative">
-          {/* Desktop Navigation - Left Side */}
-          <nav className="hidden md:flex items-center space-x-6 absolute left-0">
-            {navLinks.slice(0, 3).map((link) => (
-              <Link
-                key={link.path}
-                to={link.path}
-                className={`text-sm font-medium transition-colors hover:text-primary ${
-                  isActive(link.path)
-                    ? "text-primary"
-                    : "text-muted-foreground"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-          </nav>
-
-          {/* Centered Logo */}
+        <div className="flex h-16 items-center justify-between">
           <Link to="/" className="flex items-center">
-            <img 
-              src={logo} 
-              alt="Figure It - Handcrafted doll ensembles" 
-              className="h-14 w-auto object-contain"
-            />
+            <div className="bg-accent/20 rounded-lg p-2 backdrop-blur-sm">
+              <img 
+                src={logo} 
+                alt="Figure It - Handcrafted doll ensembles" 
+                className="h-12 w-auto"
+              />
+            </div>
           </Link>
 
-          {/* Desktop Navigation - Right Side */}
-          <nav className="hidden md:flex items-center space-x-6 absolute right-0">
-            {navLinks.slice(3).map((link) => (
+          {/* Desktop Navigation */}
+          <nav className="hidden md:flex items-center space-x-6">
+            {navLinks.map((link) => (
               <Link
                 key={link.path}
                 to={link.path}
@@ -69,7 +53,7 @@ const Header = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden absolute right-0"
+            className="md:hidden"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
           >
             {mobileMenuOpen ? (

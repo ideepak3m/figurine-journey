@@ -97,7 +97,7 @@ const Index = () => {
             <CarouselContent>
               {bannerSlides.map((slide, slideIndex) => (
                 <CarouselItem key={slideIndex}>
-                  <div className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden bg-muted">
+                  <div className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden bg-muted pattern-dots">
                     <div className="grid grid-cols-2 gap-1 h-full">
                       {slide.map((item, itemIndex) => (
                         <div key={itemIndex} className="relative h-full overflow-hidden">

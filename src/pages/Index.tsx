@@ -20,35 +20,38 @@ import banner4 from "@/assets/banner-4.jpg";
 import banner5 from "@/assets/banner-5.jpg";
 import banner6 from "@/assets/banner-6.jpg";
 import banner7 from "@/assets/banner-7.jpg";
+import figurine1 from "@/assets/Family1.png";
+import dogwalk from "@/assets/DogWalk1.png";
+import gameplan from "@/assets/GamePlan.jpg";
 
 const Index = () => {
   const bannerImages = [
-    { 
-      image: banner1, 
+    {
+      image: banner1,
       alt: "Child reaching for colorful flower fairy figurines"
     },
-    { 
-      image: banner2, 
+    {
+      image: banner2,
       alt: "Singer with custom talent figurine under glass dome"
     },
-    { 
-      image: banner3, 
+    {
+      image: banner3,
       alt: "Artist painting with matching figurine"
     },
-    { 
-      image: banner4, 
+    {
+      image: banner4,
       alt: "Pet owner with dog figurine keepsake"
     },
-    { 
-      image: banner5, 
+    {
+      image: banner5,
       alt: "Couple figurine in elegant glass display"
     },
-    { 
-      image: banner6, 
+    {
+      image: banner6,
       alt: "Holiday gift figurine with Christmas tree"
     },
-    { 
-      image: banner7, 
+    {
+      image: banner7,
       alt: "Garden fairy figurine in glass dome"
     },
   ];
@@ -61,19 +64,19 @@ const Index = () => {
 
   const featuredProducts = [
     {
-      image: productFamily,
+      image: figurine1,
       title: "Family Portrait Set",
       description: "Capture your family's unique bond in charming miniature form",
       price: "$89.99",
     },
     {
-      image: productPet,
+      image: dogwalk,
       title: "Pet & Owner Set",
       description: "Celebrate the special connection with your furry friend",
       price: "$64.99",
     },
     {
-      image: productFestive,
+      image: gameplan,
       title: "Festive Collection",
       description: "Holiday-themed figurines perfect for seasonal celebrations",
       price: "$74.99",
@@ -83,7 +86,7 @@ const Index = () => {
   return (
     <div className="min-h-screen flex flex-col">
       <Header />
-      
+
       <main className="flex-1">
         {/* Hero Carousel Banner */}
         <section className="relative w-full">
@@ -96,11 +99,11 @@ const Index = () => {
           >
             <CarouselContent>
               {bannerSlides.map((slide, slideIndex) => (
-                <CarouselItem key={slideIndex}>
+                <CarouselItem key={slideIndex} className="pl-0">
                   <div className="relative h-[70vh] md:h-[80vh] w-full overflow-hidden bg-muted pattern-dots">
-                    <div className="grid grid-cols-2 gap-1 h-full">
+                    <div className="flex h-full gap-1">
                       {slide.map((item, itemIndex) => (
-                        <div key={itemIndex} className="relative h-full overflow-hidden">
+                        <div key={itemIndex} className="relative h-full flex-1">
                           <img
                             src={item.image}
                             alt={item.alt}
@@ -110,9 +113,8 @@ const Index = () => {
                       ))}
                     </div>
                     <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/40 to-transparent pointer-events-none" />
-                    
                     <div className="absolute inset-x-0 bottom-0 pb-8 md:pb-12">
-                      <div className="container mx-auto px-4">
+                      <div className="container px-0 md:px-4 mx-auto">
                         <div className="max-w-3xl mx-auto text-center space-y-4 animate-fade-in">
                           <div className="flex flex-wrap gap-4 justify-center">
                             <Button size="lg" className="gap-2 shadow-lg">

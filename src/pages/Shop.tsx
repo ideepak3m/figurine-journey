@@ -3,70 +3,28 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { Button } from "@/components/ui/button";
-import productFamily from "@/assets/product-family.jpg";
-import productPet from "@/assets/product-pet.jpg";
-import productFestive from "@/assets/product-festive.jpg";
+import { useProducts } from "@/hooks/useProducts";
+import { useAssetCategories } from "@/hooks/useCategories";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { AlertCircle } from "lucide-react";
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
 
+  // Fetch products from Supabase
+  const { data: products, isLoading, error } = useProducts({
+    category: selectedCategory
+  });
+
+  // Fetch categories from Supabase
+  const { data: assetCategories, isLoading: categoriesLoading } = useAssetCategories();
+
+  // Build category list with "All Products" option
   const categories = [
     { id: "all", label: "All Products" },
-    { id: "family", label: "Family Portraits" },
-    { id: "pets", label: "Pet & Owner Sets" },
-    { id: "festive", label: "Festive Figurines" },
-    { id: "custom", label: "Custom Orders" },
+    ...(assetCategories?.map(cat => ({ id: cat, label: cat })) || []),
   ];
-
-  const products = [
-    {
-      image: productFamily,
-      title: "Family Portrait Set",
-      description: "Capture your family's unique bond in charming miniature form",
-      price: "$89.99",
-      category: "family",
-    },
-    {
-      image: productPet,
-      title: "Pet & Owner Set",
-      description: "Celebrate the special connection with your furry friend",
-      price: "$64.99",
-      category: "pets",
-    },
-    {
-      image: productFestive,
-      title: "Festive Collection",
-      description: "Holiday-themed figurines perfect for seasonal celebrations",
-      price: "$74.99",
-      category: "festive",
-    },
-    {
-      image: productFamily,
-      title: "Couple Portrait",
-      description: "Perfect anniversary or wedding gift for special occasions",
-      price: "$69.99",
-      category: "family",
-    },
-    {
-      image: productPet,
-      title: "Multi-Pet Set",
-      description: "Celebrate all your furry companions in one adorable set",
-      price: "$89.99",
-      category: "pets",
-    },
-    {
-      image: productFestive,
-      title: "Christmas Family",
-      description: "Festive family figurines with holiday spirit",
-      price: "$94.99",
-      category: "festive",
-    },
-  ];
-
-  const filteredProducts =
-    selectedCategory === "all"
-      ? products
-      : products.filter((p) => p.category === selectedCategory);
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -83,23 +41,67 @@ const Shop = () => {
 
           {/* Category Filter */}
           <div className="flex flex-wrap justify-center gap-4 mb-12">
-            {categories.map((category) => (
-              <Button
-                key={category.id}
-                variant={selectedCategory === category.id ? "default" : "outline"}
-                onClick={() => setSelectedCategory(category.id)}
-              >
-                {category.label}
-              </Button>
-            ))}
+            {categoriesLoading ? (
+              <div className="flex gap-4">
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+                <Skeleton className="h-10 w-32" />
+              </div>
+            ) : (
+              categories.map((category) => (
+                <Button
+                  key={category.id}
+                  variant={selectedCategory === category.id ? "default" : "outline"}
+                  onClick={() => setSelectedCategory(category.id)}
+                >
+                  {category.label}
+                </Button>
+              ))
+            )}
           </div>
 
+          {/* Error State */}
+          {error && (
+            <Alert variant="destructive" className="mb-8">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Failed to load products. Please try again later.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Loading State */}
+          {isLoading && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {[...Array(6)].map((_, index) => (
+                <div key={index} className="space-y-4">
+                  <Skeleton className="aspect-square w-full" />
+                  <Skeleton className="h-6 w-3/4" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-8 w-24" />
+                </div>
+              ))}
+            </div>
+          )}
+
           {/* Products Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredProducts.map((product, index) => (
-              <ProductCard key={index} {...product} />
-            ))}
-          </div>
+          {!isLoading && !error && products && (
+            <>
+              {products.length === 0 ? (
+                <div className="text-center py-12">
+                  <p className="text-xl text-muted-foreground">
+                    No products found in this category.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                  {products.map((product) => (
+                    <ProductCard key={product.id} product={product} />
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </div>
       </main>
 

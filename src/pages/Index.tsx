@@ -3,6 +3,8 @@ import { ArrowRight, Heart, Sparkles, Users } from "lucide-react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import { useProducts } from "@/hooks/useProducts";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Carousel,
   CarouselContent,
@@ -10,9 +12,6 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import productFamily from "@/assets/product-family.jpg";
-import productPet from "@/assets/product-pet.jpg";
-import productFestive from "@/assets/product-festive.jpg";
 import banner1 from "@/assets/banner-1.jpg";
 import banner2 from "@/assets/banner-2.jpg";
 import banner3 from "@/assets/banner-3.jpg";
@@ -20,11 +19,11 @@ import banner4 from "@/assets/banner-4.jpg";
 import banner5 from "@/assets/banner-5.jpg";
 import banner6 from "@/assets/banner-6.jpg";
 import banner7 from "@/assets/banner-7.jpg";
-import figurine1 from "@/assets/Family1.png";
-import dogwalk from "@/assets/DogWalk1.png";
-import gameplan from "@/assets/GamePlan.jpg";
 
 const Index = () => {
+  // Fetch featured products from Supabase (limit to 3)
+  const { data: products, isLoading } = useProducts({ limit: 3 });
+
   const bannerImages = [
     {
       image: banner1,
@@ -61,27 +60,6 @@ const Index = () => {
   for (let i = 0; i < bannerImages.length; i += 2) {
     bannerSlides.push(bannerImages.slice(i, i + 2));
   }
-
-  const featuredProducts = [
-    {
-      image: figurine1,
-      title: "Family Portrait Set",
-      description: "Capture your family's unique bond in charming miniature form",
-      price: "$89.99",
-    },
-    {
-      image: dogwalk,
-      title: "Pet & Owner Set",
-      description: "Celebrate the special connection with your furry friend",
-      price: "$64.99",
-    },
-    {
-      image: gameplan,
-      title: "Festive Collection",
-      description: "Holiday-themed figurines perfect for seasonal celebrations",
-      price: "$74.99",
-    },
-  ];
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -180,13 +158,32 @@ const Index = () => {
                 Discover our most popular handcrafted figurines
               </p>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {featuredProducts.map((product, index) => (
-                <ProductCard key={index} {...product} />
-              ))}
-            </div>
+
+            {/* Loading State */}
+            {isLoading && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {[...Array(3)].map((_, index) => (
+                  <div key={index} className="space-y-4">
+                    <Skeleton className="aspect-square w-full" />
+                    <Skeleton className="h-6 w-3/4" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-8 w-24" />
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Products Grid */}
+            {!isLoading && products && products.length > 0 && (
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                {products.map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
+            )}
+
             <div className="text-center mt-12">
-              <Button size="lg" variant="outline">
+              <Button size="lg" variant="outline" onClick={() => window.location.href = '/#/shop'}>
                 View All Products
               </Button>
             </div>

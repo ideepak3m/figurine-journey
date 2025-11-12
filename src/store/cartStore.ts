@@ -26,6 +26,8 @@ export interface ShippingInfo {
     postalCode: string;
     isGTA: boolean;
     shippingFee: number;
+    province?: string;
+    taxRate?: number;
 }
 
 interface CartStore {
@@ -41,12 +43,30 @@ interface CartStore {
 
     // Computed values
     getSubtotal: () => number;
+    getTax: () => number;
     getTotal: () => number;
     getItemCount: () => number;
 }
 
 // GTA postal code prefixes (first 3 characters)
 const GTA_POSTAL_CODE_PREFIXES = ['M', 'L4', 'L5', 'L6', 'L7', 'L9', 'N'];
+
+// Tax rates by province
+export const TAX_RATES = {
+    ON: 0.13, // HST - Ontario (includes GTA)
+    QC: 0.14975, // GST 5% + QST 9.975%
+    BC: 0.12, // GST 5% + PST 7%
+    AB: 0.05, // GST only
+    SK: 0.11, // GST 5% + PST 6%
+    MB: 0.12, // GST 5% + PST 7%
+    NS: 0.15, // HST
+    NB: 0.15, // HST
+    NL: 0.15, // HST
+    PE: 0.15, // HST
+    YT: 0.05, // GST only
+    NT: 0.05, // GST only
+    NU: 0.05, // GST only
+};
 
 // Helper function to check if postal code is in GTA
 export const isGTAPostalCode = (postalCode: string): boolean => {
@@ -65,6 +85,36 @@ export const isGTAPostalCode = (postalCode: string): boolean => {
     if (GTA_POSTAL_CODE_PREFIXES.includes(prefix1)) return true;
 
     return false;
+};
+
+// Helper function to determine province from postal code
+export const getProvinceFromPostalCode = (postalCode: string): string => {
+    const cleanCode = postalCode.trim().toUpperCase().replace(/\s/g, '');
+    const firstChar = cleanCode.charAt(0);
+
+    // Canadian postal code province mapping
+    const provinceMap: { [key: string]: string } = {
+        A: 'NL', // Newfoundland and Labrador
+        B: 'NS', // Nova Scotia
+        C: 'PE', // Prince Edward Island
+        E: 'NB', // New Brunswick
+        G: 'QC', // Quebec (Eastern)
+        H: 'QC', // Quebec (Montreal)
+        J: 'QC', // Quebec (Western)
+        K: 'ON', // Ontario (Eastern)
+        L: 'ON', // Ontario (Central)
+        M: 'ON', // Ontario (Toronto)
+        N: 'ON', // Ontario (Southwestern)
+        P: 'ON', // Ontario (Northern)
+        R: 'MB', // Manitoba
+        S: 'SK', // Saskatchewan
+        T: 'AB', // Alberta
+        V: 'BC', // British Columbia
+        X: 'NT', // Northwest Territories, Nunavut
+        Y: 'YT', // Yukon
+    };
+
+    return provinceMap[firstChar] || 'ON'; // Default to Ontario
 };
 
 export const useCartStore = create<CartStore>()(
@@ -118,11 +168,22 @@ export const useCartStore = create<CartStore>()(
                 return state.items.reduce((total, item) => total + item.price * item.quantity, 0);
             },
 
+            getTax: () => {
+                const state = get();
+                const subtotal = state.getSubtotal();
+                const shippingFee = state.shippingInfo?.shippingFee || 0;
+                const taxRate = state.shippingInfo?.taxRate || TAX_RATES.ON; // Default to Ontario HST
+
+                // Tax is calculated on subtotal + shipping
+                return (subtotal + shippingFee) * taxRate;
+            },
+
             getTotal: () => {
                 const state = get();
                 const subtotal = state.getSubtotal();
                 const shippingFee = state.shippingInfo?.shippingFee || 0;
-                return subtotal + shippingFee;
+                const tax = state.getTax();
+                return subtotal + shippingFee + tax;
             },
 
             getItemCount: () => {

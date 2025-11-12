@@ -16,6 +16,7 @@ export interface Database {
                     filename: string
                     asset_type: string
                     asset_status: string
+                    original_asset_status: string
                     category: string | null
                     title: string | null
                     description: string | null
@@ -30,6 +31,7 @@ export interface Database {
                     filename: string
                     asset_type: string
                     asset_status?: string
+                    original_asset_status?: string
                     category?: string | null
                     title?: string | null
                     description?: string | null
@@ -44,6 +46,7 @@ export interface Database {
                     filename?: string
                     asset_type?: string
                     asset_status?: string
+                    original_asset_status?: string
                     category?: string | null
                     title?: string | null
                     description?: string | null
@@ -137,6 +140,7 @@ export interface Database {
                     is_gta: boolean
                     subtotal: number
                     shipping_fee: number
+                    tax: number
                     total: number
                     payment_status: string
                     payment_intent_id: string | null
@@ -146,15 +150,16 @@ export interface Database {
                 }
                 Insert: {
                     id?: string
-                    order_number: string
+                    order_number?: string
                     customer_name: string
                     customer_email: string
                     customer_phone: string
                     shipping_address: string
-                    postal_code: string
-                    is_gta: boolean
+                    postal_code?: string
+                    is_gta?: boolean
                     subtotal: number
                     shipping_fee: number
+                    tax: number
                     total: number
                     payment_status?: string
                     payment_intent_id?: string | null
@@ -173,6 +178,7 @@ export interface Database {
                     is_gta?: boolean
                     subtotal?: number
                     shipping_fee?: number
+                    tax?: number
                     total?: number
                     payment_status?: string
                     payment_intent_id?: string | null
@@ -199,7 +205,7 @@ export interface Database {
                     order_id: string
                     asset_id?: string | null
                     custom_order_id?: string | null
-                    item_type: string
+                    item_type?: string
                     title: string
                     description?: string | null
                     price: number
@@ -222,6 +228,11 @@ export interface Database {
             custom_orders: {
                 Row: {
                     id: string
+                    order_id: string | null
+                    customer_name: string
+                    customer_email: string
+                    customer_phone: string
+                    reference_asset_id: string | null
                     n8n_session_id: string | null
                     customer_notes: string | null
                     photo_urls: string[]
@@ -233,6 +244,11 @@ export interface Database {
                 }
                 Insert: {
                     id?: string
+                    order_id?: string | null
+                    customer_name: string
+                    customer_email: string
+                    customer_phone: string
+                    reference_asset_id?: string | null
                     n8n_session_id?: string | null
                     customer_notes?: string | null
                     photo_urls?: string[]
@@ -244,6 +260,11 @@ export interface Database {
                 }
                 Update: {
                     id?: string
+                    order_id?: string | null
+                    customer_name?: string
+                    customer_email?: string
+                    customer_phone?: string
+                    reference_asset_id?: string | null
                     n8n_session_id?: string | null
                     customer_notes?: string | null
                     photo_urls?: string[]
@@ -259,7 +280,10 @@ export interface Database {
             [_ in never]: never
         }
         Functions: {
-            [_ in never]: never
+            generate_order_number: {
+                Args: Record<string, never>
+                Returns: string
+            }
         }
         Enums: {
             [_ in never]: never

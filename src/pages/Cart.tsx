@@ -2,7 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { useCartStore, isGTAPostalCode } from "@/store/cartStore";
+import { useCartStore, isGTAPostalCode, getProvinceFromPostalCode, TAX_RATES } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -12,12 +12,12 @@ import { toast } from "sonner";
 
 const Cart = () => {
     const navigate = useNavigate();
-    const { items, removeItem, updateQuantity, clearCart, getSubtotal, getTotal, shippingInfo, setShippingInfo } = useCartStore();
+    const { items, removeItem, updateQuantity, clearCart, getSubtotal, getTax, getTotal, shippingInfo, setShippingInfo } = useCartStore();
 
     const [postalCode, setPostalCode] = useState(shippingInfo?.postalCode || "");
     const [shippingCalculated, setShippingCalculated] = useState(!!shippingInfo);
 
-    const SHIPPING_FEE = 15.00; // Fee for outside GTA
+    const SHIPPING_FEE_GTA = 20.00; // Flat rate for GTA
 
     const handleCalculateShipping = () => {
         if (!postalCode.trim()) {
@@ -26,19 +26,27 @@ const Cart = () => {
         }
 
         const isGTA = isGTAPostalCode(postalCode);
-        const fee = isGTA ? 0 : SHIPPING_FEE;
+        const province = getProvinceFromPostalCode(postalCode);
+        const taxRate = TAX_RATES[province as keyof typeof TAX_RATES] || TAX_RATES.ON;
+
+        if (!isGTA) {
+            toast.info("Shipping outside GTA - Available on demand. Please contact us for a quote.");
+            return;
+        }
+
+        const fee = SHIPPING_FEE_GTA;
 
         setShippingInfo({
             postalCode: postalCode.toUpperCase(),
             isGTA,
             shippingFee: fee,
+            province,
+            taxRate,
         });
 
         setShippingCalculated(true);
-        toast.success(isGTA ? "Free shipping within GTA!" : `Shipping fee: $${fee.toFixed(2)}`);
-    };
-
-    const handleCheckout = () => {
+        toast.success(`Shipping fee: $${fee.toFixed(2)}`);
+    }; const handleCheckout = () => {
         if (!shippingCalculated) {
             toast.error("Please calculate shipping first");
             return;
@@ -70,6 +78,7 @@ const Cart = () => {
     }
 
     const subtotal = getSubtotal();
+    const tax = getTax();
     const total = getTotal();
 
     return (
@@ -213,15 +222,27 @@ const Cart = () => {
                                             {shippingCalculated && (
                                                 <p className="text-sm">
                                                     {shippingInfo?.isGTA ? (
-                                                        <span className="text-green-600">✓ Free shipping (GTA)</span>
+                                                        <span className="text-green-600">
+                                                            ✓ Flat rate within GTA (single or multiple items): ${shippingInfo?.shippingFee.toFixed(2)}
+                                                        </span>
                                                     ) : (
                                                         <span className="text-amber-600">
-                                                            + ${shippingInfo?.shippingFee.toFixed(2)} (Outside GTA)
+                                                            Shipping outside GTA - Contact us for quote
                                                         </span>
                                                     )}
                                                 </p>
                                             )}
-                                        </div>
+                                        </div>                                        <Separator />
+
+                                        {/* Tax Information */}
+                                        {shippingCalculated && (
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">
+                                                    Tax ({shippingInfo?.province} - {((shippingInfo?.taxRate || 0) * 100).toFixed(2)}%)
+                                                </span>
+                                                <span className="font-semibold">${tax.toFixed(2)}</span>
+                                            </div>
+                                        )}
 
                                         <Separator />
 

@@ -9,6 +9,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { Trash2, Plus, Minus, ShoppingBag, Package } from "lucide-react";
 import { toast } from "sonner";
+import { InventoryDisclaimer } from "@/components/InventoryDisclaimer";
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -88,6 +89,9 @@ const Cart = () => {
             <main className="flex-1 py-12">
                 <div className="container mx-auto px-4">
                     <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
+
+                    {/* Inventory Disclaimer */}
+                    <InventoryDisclaimer />
 
                     <div className="grid lg:grid-cols-3 gap-8">
                         {/* Cart Items */}

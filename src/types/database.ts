@@ -145,6 +145,10 @@ export interface Database {
                     payment_status: string
                     payment_intent_id: string | null
                     order_status: string
+                    confirmation_email_sent: boolean
+                    confirmation_email_sent_at: string | null
+                    admin_email_sent: boolean
+                    admin_email_sent_at: string | null
                     created_at: string
                     updated_at: string
                 }

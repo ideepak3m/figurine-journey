@@ -40,7 +40,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
       assetId: product.id,
     });
 
-    toast.success(`${product.title || 'Product'} added to cart!`);
+    toast.success(`${product.title || 'Product'} added to cart!`, {
+      description: "⚠️ Item not reserved - complete payment to guarantee availability",
+      duration: 4000,
+    });
   };
 
   const handleCustomize = () => {

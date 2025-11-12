@@ -13,6 +13,8 @@ import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { supabase } from "@/lib/supabase";
 import { Loader2 } from "lucide-react";
+import { InventoryDisclaimer } from "@/components/InventoryDisclaimer";
+import { ItemUnavailableAlert } from "@/components/ItemUnavailableAlert";
 
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
@@ -41,9 +43,10 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
     const navigate = useNavigate();
     const stripe = useStripe();
     const elements = useElements();
-    const { items, shippingInfo, getSubtotal, getTax, getTotal, clearCart } = useCartStore();
+    const { items, shippingInfo, getSubtotal, getTax, getTotal, clearCart, removeItem } = useCartStore();
 
     const [processing, setProcessing] = useState(false);
+    const [unavailableItems, setUnavailableItems] = useState<string[]>([]);
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -174,31 +177,25 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
         }
 
         try {
+            // Send only the order ID to n8n
+            // n8n will fetch order details from Supabase and send emails
             await fetch(webhookUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    orderNumber: orderData.order_number,
-                    customerName: formData.fullName,
-                    customerEmail: formData.email,
-                    customerPhone: formData.phone,
-                    items: items,
-                    subtotal: subtotal,
-                    shippingFee: shippingFee,
-                    tax: tax,
-                    total: total,
-                    shippingAddress: `${formData.address}, ${formData.city}, ${formData.postalCode}`,
+                    event: 'order.created',
+                    order_id: orderData.id,
+                    order_number: orderData.order_number,
                 }),
             });
         } catch (error) {
-            console.error('Error sending notification:', error);
+            console.error('Error sending notification to n8n:', error);
             // Don't throw - notification failure shouldn't break the order
+            // n8n can also be triggered by Supabase webhooks as backup
         }
-    };
-
-    const handleSubmit = async (e: React.FormEvent) => {
+    }; const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!stripe || !elements) {
@@ -271,6 +268,11 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
 
     return (
         <form onSubmit={handleSubmit} className="space-y-6">
+            {/* Show alert if items are unavailable */}
+            {unavailableItems.length > 0 && (
+                <ItemUnavailableAlert itemNames={unavailableItems} />
+            )}
+
             {/* Customer Information */}
             <Card>
                 <CardHeader>
@@ -460,6 +462,10 @@ const Checkout = () => {
             <main className="flex-1 py-12">
                 <div className="container mx-auto px-4 max-w-4xl">
                     <h1 className="text-4xl font-bold mb-8">Checkout</h1>
+
+                    {/* Inventory Disclaimer */}
+                    <InventoryDisclaimer />
+
                     <Elements stripe={stripePromise}>
                         <CheckoutForm onSuccess={handleSuccess} />
                     </Elements>

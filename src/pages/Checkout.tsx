@@ -105,7 +105,7 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
             if (orderError) throw orderError;
             if (!orderData) throw new Error('Failed to create order');
 
-            // Insert order items
+            // Insert order items (only standard products, no custom orders)
             const orderItems = items.map(item => ({
                 order_id: orderData.id,
                 asset_id: item.assetId || null,
@@ -136,29 +136,6 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                     console.error('Error updating asset status:', updateError);
                     // Don't throw - order is already created, just log the error
                 }
-            }
-
-            // Handle custom orders if any
-            const customOrders = items.filter(item => item.type === 'custom');
-            if (customOrders.length > 0) {
-                const customOrderRecords = customOrders.map(item => ({
-                    order_id: orderData.id,
-                    customer_name: formData.fullName,
-                    customer_email: formData.email,
-                    customer_phone: formData.phone,
-                    reference_asset_id: item.assetId || null,
-                    photo_urls: item.customOrderData?.photoUrls || [],
-                    customer_notes: item.customOrderData?.customerNotes || '',
-                    requirements_summary: item.customOrderData?.requirementsSummary || '',
-                    estimated_price: item.price,
-                    status: 'pending',
-                }));
-
-                const { error: customError } = await supabase
-                    .from('custom_orders')
-                    .insert(customOrderRecords);
-
-                if (customError) throw customError;
             }
 
             return orderData;
@@ -195,7 +172,9 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
             // Don't throw - notification failure shouldn't break the order
             // n8n can also be triggered by Supabase webhooks as backup
         }
-    }; const handleSubmit = async (e: React.FormEvent) => {
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (!stripe || !elements) {

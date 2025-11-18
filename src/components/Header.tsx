@@ -1,18 +1,56 @@
-import { Link, useLocation } from "react-router-dom";
+// src/components/Header.tsx
+
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Menu, X, ShoppingCart } from "lucide-react";
-import { useState } from "react";
+import { Menu, X, ShoppingCart, User, LogOut } from "lucide-react";
+import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
+import { supabase } from "@/lib/supabase";
 import logo from "@/assets/logo.jpg";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Header = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const itemCount = useCartStore((state) => state.getItemCount());
 
+  useEffect(() => {
+    // Check current user
+    const checkUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setIsLoading(false);
+    };
+
+    checkUser();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    setUser(null);
+    navigate("/");
+  };
+
   const navLinks = [
-    { path: "/", label: "Home" },
+    { path: "/shop", label: "Home" },
     { path: "/shop", label: "Shop" },
     { path: "/custom-orders", label: "Custom Orders" },
     { path: "/about", label: "About" },
@@ -39,11 +77,11 @@ const Header = () => {
           <nav className="hidden md:flex items-center space-x-6">
             {navLinks.map((link) => (
               <Link
-                key={link.path}
+                key={link.path + '-' + link.label}
                 to={link.path}
                 className={`text-sm font-medium transition-colors hover:text-primary ${isActive(link.path)
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  ? "text-primary"
+                  : "text-muted-foreground"
                   }`}
               >
                 {link.label}
@@ -64,6 +102,55 @@ const Header = () => {
                 )}
               </Button>
             </Link>
+
+            {/* User Menu / Login Button */}
+            {!isLoading && (
+              <>
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <User className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {user.user_metadata?.full_name || "My Account"}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/custom-orders")}>
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        <span>New Custom Order</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => navigate("/login")}
+                  >
+                    Login
+                  </Button>
+                )}
+              </>
+            )}
           </nav>
 
           {/* Mobile Menu Button */}
@@ -81,6 +168,56 @@ const Header = () => {
                 )}
               </Button>
             </Link>
+
+            {/* User Menu / Login Button - Mobile */}
+            {!isLoading && (
+              <>
+                {user ? (
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button variant="ghost" size="icon">
+                        <User className="h-5 w-5" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="w-56">
+                      <DropdownMenuLabel>
+                        <div className="flex flex-col space-y-1">
+                          <p className="text-sm font-medium leading-none">
+                            {user.user_metadata?.full_name || "My Account"}
+                          </p>
+                          <p className="text-xs leading-none text-muted-foreground">
+                            {user.email}
+                          </p>
+                        </div>
+                      </DropdownMenuLabel>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
+                        <User className="mr-2 h-4 w-4" />
+                        <span>Dashboard</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => navigate("/custom-orders")}>
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        <span>New Custom Order</span>
+                      </DropdownMenuItem>
+                      <DropdownMenuSeparator />
+                      <DropdownMenuItem onClick={handleLogout} className="text-red-600">
+                        <LogOut className="mr-2 h-4 w-4" />
+                        <span>Logout</span>
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                ) : (
+                  <Button
+                    variant="default"
+                    size="sm"
+                    onClick={() => navigate("/login")}
+                  >
+                    Login
+                  </Button>
+                )}
+              </>
+            )}
+
             <Button
               variant="ghost"
               size="icon"
@@ -104,8 +241,8 @@ const Header = () => {
                 to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${isActive(link.path)
-                    ? "text-primary"
-                    : "text-muted-foreground"
+                  ? "text-primary"
+                  : "text-muted-foreground"
                   }`}
               >
                 {link.label}

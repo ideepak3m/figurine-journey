@@ -1,6 +1,10 @@
+import React, { useState } from "react";
 import { Facebook, Instagram, Mail, MapPin } from "lucide-react";
+import PolicyModal from "@/components/PolicyModal";
 
 const Footer = () => {
+  const [policyOpen, setPolicyOpen] = useState<null | "privacy" | "terms">(null);
+
   return (
     <footer className="border-t border-border bg-card">
       <div className="container mx-auto px-4 py-12">
@@ -91,9 +95,38 @@ const Footer = () => {
         </div>
 
         <div className="mt-8 pt-8 border-t border-border text-center text-sm text-muted-foreground">
+          <div className="flex flex-col md:flex-row gap-2 md:gap-6 justify-center items-center mb-2">
+            <button
+              onClick={() => setPolicyOpen("privacy")}
+              className="hover:text-primary underline underline-offset-2 bg-transparent border-0 p-0 m-0 cursor-pointer"
+              type="button"
+            >
+              Privacy Policy
+            </button>
+            <span className="hidden md:inline">|</span>
+            <button
+              onClick={() => setPolicyOpen("terms")}
+              className="hover:text-primary underline underline-offset-2 bg-transparent border-0 p-0 m-0 cursor-pointer"
+              type="button"
+            >
+              Terms & Conditions
+            </button>
+          </div>
           <p>© {new Date().getFullYear()} Figure It. All rights reserved.</p>
         </div>
       </div>
+      <PolicyModal
+        open={policyOpen === "privacy"}
+        onOpenChange={() => setPolicyOpen(null)}
+        url="/privacy-policy.html"
+        title="Privacy Policy"
+      />
+      <PolicyModal
+        open={policyOpen === "terms"}
+        onOpenChange={() => setPolicyOpen(null)}
+        url="/terms.html"
+        title="Terms & Conditions"
+      />
     </footer>
   );
 };

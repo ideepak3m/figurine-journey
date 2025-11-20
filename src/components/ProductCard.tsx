@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+// import { ReviewCarousel, Review } from "@/components/ReviewCarousel";
 import { useCartStore } from "@/store/cartStore";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -91,7 +92,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         </p>
         <p className="text-2xl font-bold text-primary">{formatPrice(product.price)}</p>
       </CardContent>
-      <CardFooter className="p-6 pt-0 flex gap-2">
+      <CardFooter className="p-6 pt-0 flex gap-2 flex-col items-stretch">
         {isAvailable ? (
           <>
             <Button
@@ -108,6 +109,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
             >
               Customize
             </Button>
+            {/* ReviewCarousel removed from shop page */}
           </>
         ) : (
           <Button
@@ -121,5 +123,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
     </Card>
   );
 };
+
+
 
 export default ProductCard;

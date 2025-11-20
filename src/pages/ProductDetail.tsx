@@ -6,14 +6,15 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { ReviewCarousel, Review } from "@/components/ReviewCarousel";
 import { AlertCircle, ArrowLeft, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
-import { useState } from "react";
+// import { useState } from "react";
 
 const ProductDetail = () => {
     const { id } = useParams<{ id: string }>();
     const navigate = useNavigate();
-    const [quantity, setQuantity] = useState(1);
+    // Quantity always 1 for available figurines
 
     const { data: product, isLoading, error } = useProduct(id || '');
     const addItem = useCartStore((state) => state.addItem);
@@ -45,13 +46,14 @@ const ProductDetail = () => {
             title: product.title || 'Untitled Product',
             description: product.description || undefined,
             price: Number(product.price),
-            quantity: quantity,
+            quantity: 1,
             imageUrl: product.asset_url,
             assetId: product.id,
         });
 
         toast.success(`${product.title || 'Product'} added to cart!`);
-    }; const handleCustomize = () => {
+    };
+    const handleCustomize = () => {
         navigate('/custom-orders');
     };
 
@@ -171,31 +173,9 @@ const ProductDetail = () => {
                                 </p>
                             </div>
 
-                            {/* Quantity Selector - Only for available items */}
-                            {isAvailable && (
-                                <div className="flex items-center gap-4">
-                                    <label className="font-semibold">Quantity:</label>
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
-                                            onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                                        >
-                                            -
-                                        </Button>
-                                        <span className="w-12 text-center font-semibold">{quantity}</span>
-                                        <Button
-                                            variant="outline"
-                                            size="icon"
-                                            onClick={() => setQuantity(quantity + 1)}
-                                        >
-                                            +
-                                        </Button>
-                                    </div>
-                                </div>
-                            )}
+                            {/* Quantity Selector removed: quantity is always 1 for available figurines */}
 
-                            {/* Action Buttons */}
+                            {/* Action Buttons and Custom Order Info */}
                             <div className="space-y-4 pt-6">
                                 {isAvailable ? (
                                     <>
@@ -208,6 +188,14 @@ const ProductDetail = () => {
                                             <ShoppingCart className="mr-2 h-5 w-5" />
                                             Add to Cart
                                         </Button>
+                                        <div className="bg-yellow-50 border border-yellow-200 rounded p-4 text-yellow-900 text-sm flex flex-col gap-2">
+                                            <h1><span className="font-semibold text-base">🛎️ Custom Orders Available — But Not Modifications</span></h1>
+                                            <span>
+                                                <span className="text-base font-bold">This figurine is handcrafted and one-of-a-kind.</span>
+                                                <br />If you'd like something similar but personalized, we offer custom orders — just click <b>Customize</b> to start.
+                                                <br /><b>Please note:</b> we cannot modify this exact piece or recreate it identically, but we’d love to craft something inspired by it, just for you.
+                                            </span>
+                                        </div>
                                         <Button
                                             variant="outline"
                                             className="w-full"
@@ -216,6 +204,13 @@ const ProductDetail = () => {
                                         >
                                             Customize
                                         </Button>
+                                        <div className="pt-6">
+                                            {/* TODO: Replace with real reviews from DB */}
+                                            <ReviewCarousel
+                                                reviews={demoReviews}
+                                                visibleCount={3}
+                                            />
+                                        </div>
                                     </>
                                 ) : (
                                     <Button
@@ -228,12 +223,12 @@ const ProductDetail = () => {
                                 )}
                             </div>
 
-                            {/* Additional Info */}
+                            {/* Additional Info
                             <div className="pt-6 border-t space-y-2 text-sm text-muted-foreground">
                                 <p>• Handcrafted with attention to detail</p>
                                 <p>• Custom orders available</p>
                                 <p>• Shipping available across GTA and beyond</p>
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
@@ -243,5 +238,39 @@ const ProductDetail = () => {
         </div>
     );
 };
+
+// Demo reviews until DB integration
+const demoReviews: Review[] = [
+    {
+        id: "1",
+        name: "Aarti S.",
+        rating: 5,
+        text: "Absolutely beautiful work! The figurine was even better than I imagined. Thank you for making my gift so special!",
+    },
+    {
+        id: "2",
+        name: "Priya M.",
+        rating: 5,
+        text: "Incredible attention to detail. The custom order process was easy and the result was perfect!",
+    },
+    {
+        id: "3",
+        name: "Rohit K.",
+        rating: 4,
+        text: "Very happy with my purchase. The figurine is unique and arrived safely. Will order again!",
+    },
+    {
+        id: "4",
+        name: "Meera D.",
+        rating: 5,
+        text: "The best custom gift experience I've had. Highly recommend!",
+    },
+    {
+        id: "5",
+        name: "Sanjay P.",
+        rating: 5,
+        text: "Beautiful craftsmanship and great communication throughout the process.",
+    },
+];
 
 export default ProductDetail;

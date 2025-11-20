@@ -50,10 +50,10 @@ const Header = () => {
   };
 
   const navLinks = [
-    { path: "/shop", label: "Home" },
+    //{ path: "/shop", label: "Home" },
     { path: "/shop", label: "Shop" },
     { path: "/custom-orders", label: "Custom Orders" },
-    { path: "/about", label: "About" },
+    //{ path: "/about", label: "About" },
     { path: "/contact", label: "Contact" },
   ];
 

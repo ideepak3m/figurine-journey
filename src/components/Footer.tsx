@@ -38,14 +38,14 @@ const Footer = () => {
                   Custom Orders
                 </a>
               </li>
-              <li>
+              {/* <li>
                 <a
                   href="/about"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   About Us
                 </a>
-              </li>
+              </li> */}
               <li>
                 <a
                   href="/contact"
@@ -74,21 +74,21 @@ const Footer = () => {
               </div>
               <div className="flex gap-4 pt-2">
                 <a
-                  href="https://instagram.com/figureit2023"
+                  href="https://www.instagram.com/figureit2023/"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
                   <Instagram className="h-5 w-5" />
                 </a>
-                <a
-                  href="https://facebook.com/figureit2023"
+                {/* <a
+                  href="https://www.facebook.com/figureit2023"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors"
                 >
-                  <Facebook className="h-5 w-5" />
-                </a>
+                  <Facebook className="h-5 w-5" /> 
+                </a>*/}
               </div>
             </div>
           </div>

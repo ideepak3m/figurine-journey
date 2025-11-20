@@ -109,7 +109,7 @@ const Contact = () => {
                           href="mailto:hello@figureit2023.com"
                           className="text-sm text-muted-foreground hover:text-primary transition-colors"
                         >
-                          hello@figureit2023.com
+                          hello@figureit.ca
                         </a>
                       </div>
                     </div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+import { ReviewCarousel, Review } from "@/components/ReviewCarousel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -358,6 +359,8 @@ const CustomOrders = () => {
   const numBoys = parseInt(boyCount, 10) || 0;
   const numDog = dog === "yes" ? 1 : 0;
   const totalFigurines = numGirls + numBoys + numDog;
+  const totalPeopleFigurines = numGirls + numBoys;
+  const figurineLimitError = totalPeopleFigurines > 4;
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -396,7 +399,7 @@ const CustomOrders = () => {
                         {/* Number of elements */}
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label>Number of girl figurine – 1, 2, 3, 4</Label>
+                            <Label>Number of girl figurine – 0, 1, 2, 3, 4</Label>
                             <Select
                               value={girlCount}
                               onValueChange={setGirlCount}
@@ -405,7 +408,7 @@ const CustomOrders = () => {
                                 <SelectValue />
                               </SelectTrigger>
                               <SelectContent>
-                                {["1", "2", "3", "4"].map((v) => (
+                                {["0", "1", "2", "3", "4"].map((v) => (
                                   <SelectItem key={v} value={v}>
                                     {v}
                                   </SelectItem>
@@ -431,6 +434,14 @@ const CustomOrders = () => {
                               </SelectContent>
                             </Select>
                           </div>
+                          {/* Figurine count error message */}
+                          {figurineLimitError && (
+                            <div className="col-span-2">
+                              <p className="text-red-600 text-sm mt-2">
+                                Total number of figurines (girl + boy) cannot exceed 4. Please adjust your selection.
+                              </p>
+                            </div>
+                          )}
                           <div className="space-y-2">
                             <Label>One dog figurine</Label>
                             <Select value={dog} onValueChange={setDog}>
@@ -705,7 +716,7 @@ const CustomOrders = () => {
                         <Button
                           type="submit"
                           className="w-full mt-4"
-                          disabled={!isFormValid() || isSubmitting}
+                          disabled={!isFormValid() || isSubmitting || figurineLimitError}
                         >
                           {isSubmitting ? "Submitting..." : "Submit Custom Order"}
                         </Button>
@@ -730,6 +741,13 @@ const CustomOrders = () => {
                       <div className="flex justify-between"><span>Embellishments</span><span>Included</span></div>
                       <hr />
                       <div className="flex justify-between font-bold text-lg"><span>Total</span><span>${getTotal(girlCount, boyCount, dog, presentation)}</span></div>
+                    </div>
+                    <div className="pt-6">
+                      {/* TODO: Replace with real reviews from DB */}
+                      <ReviewCarousel
+                        reviews={demoReviews}
+                        visibleCount={3}
+                      />
                     </div>
                   </CardContent>
                 </Card>
@@ -771,5 +789,39 @@ const CustomOrders = () => {
     </div>
   );
 };
+
+// Demo reviews until DB integration
+const demoReviews: Review[] = [
+  {
+    id: "1",
+    name: "Aarti S.",
+    rating: 5,
+    text: "Absolutely beautiful work! The figurine was even better than I imagined. Thank you for making my gift so special!",
+  },
+  {
+    id: "2",
+    name: "Priya M.",
+    rating: 5,
+    text: "Incredible attention to detail. The custom order process was easy and the result was perfect!",
+  },
+  {
+    id: "3",
+    name: "Rohit K.",
+    rating: 4,
+    text: "Very happy with my purchase. The figurine is unique and arrived safely. Will order again!",
+  },
+  {
+    id: "4",
+    name: "Meera D.",
+    rating: 5,
+    text: "The best custom gift experience I've had. Highly recommend!",
+  },
+  {
+    id: "5",
+    name: "Sanjay P.",
+    rating: 5,
+    text: "Beautiful craftsmanship and great communication throughout the process.",
+  },
+];
 
 export default CustomOrders;

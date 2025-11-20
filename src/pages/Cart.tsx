@@ -6,6 +6,7 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { useCartStore, isGTAPostalCode, getProvinceFromPostalCode, TAX_RATES } from "@/store/cartStore";
 import { Button } from "@/components/ui/button";
+import { PickupMap } from "@/components/PickupMap";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -223,11 +224,7 @@ const Cart = () => {
                                                         ${item.price.toFixed(2)}
                                                     </div>
 
-                                                    {item.type === 'custom' && (
-                                                        <div className="text-sm text-muted-foreground">
-                                                            Quantity: {item.quantity}
-                                                        </div>
-                                                    )}
+                                                    {/* Quantity removed for custom items since it is always 1 */}
                                                 </div>
                                             </div>
                                         </div>
@@ -323,9 +320,16 @@ const Cart = () => {
                                             )}
 
                                             {deliveryMethod === 'pickup' && (
-                                                <p className="text-green-700 text-sm">
-                                                    No shipping fee for pickup. You will be contacted for pickup arrangements.
-                                                </p>
+                                                <div className="flex flex-col gap-2 items-center">
+                                                    <p className="text-green-700 text-sm">
+                                                        No shipping fee for pickup. You will be contacted for pickup arrangements.
+                                                    </p>
+                                                    <PickupMap
+                                                    lat={43.65744}
+                                                    lng={-79.79783}
+                                                        label="Pickup Location (Brampton North West, ON)"
+                                                    />
+                                                </div>
                                             )}
                                         </div>
 

@@ -6,7 +6,7 @@ import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { ReviewCarousel, Review } from "@/components/ReviewCarousel";
+import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { AlertCircle, ArrowLeft, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
 // import { useState } from "react";
@@ -205,11 +205,7 @@ const ProductDetail = () => {
                                             Customize
                                         </Button>
                                         <div className="pt-6">
-                                            {/* TODO: Replace with real reviews from DB */}
-                                            <ReviewCarousel
-                                                reviews={demoReviews}
-                                                visibleCount={3}
-                                            />
+                                            <TestimonialCarousel visibleCount={5} />
                                         </div>
                                     </>
                                 ) : (
@@ -239,38 +235,5 @@ const ProductDetail = () => {
     );
 };
 
-// Demo reviews until DB integration
-const demoReviews: Review[] = [
-    {
-        id: "1",
-        name: "Aarti S.",
-        rating: 5,
-        text: "Absolutely beautiful work! The figurine was even better than I imagined. Thank you for making my gift so special!",
-    },
-    {
-        id: "2",
-        name: "Priya M.",
-        rating: 5,
-        text: "Incredible attention to detail. The custom order process was easy and the result was perfect!",
-    },
-    {
-        id: "3",
-        name: "Rohit K.",
-        rating: 4,
-        text: "Very happy with my purchase. The figurine is unique and arrived safely. Will order again!",
-    },
-    {
-        id: "4",
-        name: "Meera D.",
-        rating: 5,
-        text: "The best custom gift experience I've had. Highly recommend!",
-    },
-    {
-        id: "5",
-        name: "Sanjay P.",
-        rating: 5,
-        text: "Beautiful craftsmanship and great communication throughout the process.",
-    },
-];
 
 export default ProductDetail;

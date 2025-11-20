@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { ReviewCarousel, Review } from "@/components/ReviewCarousel";
+import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -743,11 +743,7 @@ const CustomOrders = () => {
                       <div className="flex justify-between font-bold text-lg"><span>Total</span><span>${getTotal(girlCount, boyCount, dog, presentation)}</span></div>
                     </div>
                     <div className="pt-6">
-                      {/* TODO: Replace with real reviews from DB */}
-                      <ReviewCarousel
-                        reviews={demoReviews}
-                        visibleCount={3}
-                      />
+                      <TestimonialCarousel visibleCount={5} />
                     </div>
                   </CardContent>
                 </Card>
@@ -790,38 +786,5 @@ const CustomOrders = () => {
   );
 };
 
-// Demo reviews until DB integration
-const demoReviews: Review[] = [
-  {
-    id: "1",
-    name: "Aarti S.",
-    rating: 5,
-    text: "Absolutely beautiful work! The figurine was even better than I imagined. Thank you for making my gift so special!",
-  },
-  {
-    id: "2",
-    name: "Priya M.",
-    rating: 5,
-    text: "Incredible attention to detail. The custom order process was easy and the result was perfect!",
-  },
-  {
-    id: "3",
-    name: "Rohit K.",
-    rating: 4,
-    text: "Very happy with my purchase. The figurine is unique and arrived safely. Will order again!",
-  },
-  {
-    id: "4",
-    name: "Meera D.",
-    rating: 5,
-    text: "The best custom gift experience I've had. Highly recommend!",
-  },
-  {
-    id: "5",
-    name: "Sanjay P.",
-    rating: 5,
-    text: "Beautiful craftsmanship and great communication throughout the process.",
-  },
-];
 
 export default CustomOrders;

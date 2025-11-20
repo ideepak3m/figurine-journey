@@ -175,7 +175,7 @@ const Login = () => {
 
                             <div className="mt-6 text-center text-sm">
                                 <span className="text-muted-foreground">Don't have an account? </span>
-                                <Link to="/custom-orders" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold">
+                                <Link to="/Register" className="text-blue-600 hover:text-blue-700 hover:underline font-semibold">
                                     Create one here
                                 </Link>
                             </div>

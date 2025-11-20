@@ -21,10 +21,19 @@ const Shop = () => {
   const { data: assetCategories, isLoading: categoriesLoading } = useAssetCategories();
 
   // Build category list with "All Products" option
-  const categories = [
+  // Replace 'FigureIt' with 'Available' and sort so 'Available' is first if present
+  let categories = [
     { id: "all", label: "All Products" },
-    ...(assetCategories?.map(cat => ({ id: cat, label: cat })) || []),
+    ...(assetCategories?.map(cat => ({ id: cat, label: cat === 'FigureIt' ? 'Available' : cat })) || []),
   ];
+  // Move 'Available' to the front if it exists (after 'All Products')
+  const availableIdx = categories.findIndex(c => c.label === 'Available');
+  if (availableIdx > 1) {
+    const [availableCat] = categories.splice(availableIdx, 1);
+    categories.splice(1, 0, availableCat);
+  }
+  // Hide the 'Available' button for now
+  categories = categories.filter(c => c.label !== 'Available');
 
   return (
     <div className="min-h-screen flex flex-col">
@@ -95,9 +104,17 @@ const Shop = () => {
                 </div>
               ) : (
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                  {products.map((product) => (
-                    <ProductCard key={product.id} product={product} />
-                  ))}
+                  {products
+                    .slice()
+                    .sort((a, b) => {
+                      // Show 'inventory' (Available) first
+                      if (a.asset_status === 'inventory' && b.asset_status !== 'inventory') return -1;
+                      if (a.asset_status !== 'inventory' && b.asset_status === 'inventory') return 1;
+                      return 0;
+                    })
+                    .map((product) => (
+                      <ProductCard key={product.id} product={product} />
+                    ))}
                 </div>
               )}
             </>

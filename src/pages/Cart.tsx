@@ -1,3 +1,5 @@
+import Modal from "@/components/ui/modal";
+import { supabase } from "@/lib/supabase";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
@@ -7,18 +9,89 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2, Plus, Minus, ShoppingBag, Package } from "lucide-react";
+import { Trash2, ShoppingBag, Package } from "lucide-react";
 import { toast } from "sonner";
 import { InventoryDisclaimer } from "@/components/InventoryDisclaimer";
+import logo from "@/assets/logo.jpg";
 
 const Cart = () => {
+    // Modal state for outside GTA shipping inquiry
+    const [showInquiryModal, setShowInquiryModal] = useState(false);
+    const [inqFirstName, setInqFirstName] = useState("");
+    const [inqLastName, setInqLastName] = useState("");
+    const [inqEmail, setInqEmail] = useState("");
+    const [inqPhone, setInqPhone] = useState("");
+    const [inqLoading, setInqLoading] = useState(false);
+
+    const [deliveryMethod, setDeliveryMethod] = useState<'shipping' | 'pickup'>('shipping');
     const navigate = useNavigate();
-    const { items, removeItem, updateQuantity, clearCart, getSubtotal, getTax, getTotal, shippingInfo, setShippingInfo } = useCartStore();
+    const { items, removeItem, clearCart, getSubtotal, getTax, getTotal, shippingInfo, setShippingInfo } = useCartStore();
 
     const [postalCode, setPostalCode] = useState(shippingInfo?.postalCode || "");
     const [shippingCalculated, setShippingCalculated] = useState(!!shippingInfo);
 
-    const SHIPPING_FEE_GTA = 20.00; // Flat rate for GTA
+    const SHIPPING_FEE_GTA = 20.00;
+
+    // Handle delivery method change
+    const handleDeliveryChange = (method: 'shipping' | 'pickup') => {
+        setDeliveryMethod(method);
+        if (method === 'pickup') {
+            setShippingInfo(undefined);
+            setPostalCode('');
+            setShippingCalculated(false);
+        }
+    };
+
+    // Submit shipping inquiry to Supabase
+    const handleInquirySubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setInqLoading(true);
+
+        const fullName = `${inqFirstName} ${inqLastName}`.trim();
+        const cartSnapshot = JSON.stringify(items);
+
+        const { error } = await supabase
+            .from('shipping_inquiries')
+            .insert({
+                full_name: fullName,
+                email: inqEmail,
+                phone: inqPhone || null,
+                postal_code: postalCode,
+                cart_snapshot: cartSnapshot,
+                shipping_method: 'outside_gta',
+                status: 'pending',
+                source: 'checkout_form',
+            });
+
+        setInqLoading(false);
+
+        if (error) {
+            console.error('Shipping inquiry error:', error);
+            toast.error('Failed to submit shipping inquiry. Please try again.');
+        } else {
+            toast.success('Shipping inquiry submitted! We will contact you within 24 hours.');
+            setShowInquiryModal(false);
+
+            // Reset form
+            setInqFirstName("");
+            setInqLastName("");
+            setInqEmail("");
+            setInqPhone("");
+
+            // Mark as calculated with 0 fee (will be quoted later)
+            const province = getProvinceFromPostalCode(postalCode);
+            const taxRate = TAX_RATES[province as keyof typeof TAX_RATES] || TAX_RATES.ON;
+
+            setShippingInfo({
+                postalCode: postalCode.toUpperCase(),
+                isGTA: false,
+                shippingFee: 0, // Will be quoted
+                province,
+                taxRate,
+            });
+            setShippingCalculated(true);
+        }
+    };
 
     const handleCalculateShipping = () => {
         if (!postalCode.trim()) {
@@ -31,10 +104,12 @@ const Cart = () => {
         const taxRate = TAX_RATES[province as keyof typeof TAX_RATES] || TAX_RATES.ON;
 
         if (!isGTA) {
-            toast.info("Shipping outside GTA - Available on demand. Please contact us for a quote.");
+            // Show modal for outside GTA
+            setShowInquiryModal(true);
             return;
         }
 
+        // GTA shipping
         const fee = SHIPPING_FEE_GTA;
 
         setShippingInfo({
@@ -47,11 +122,9 @@ const Cart = () => {
 
         setShippingCalculated(true);
         toast.success(`Shipping fee: $${fee.toFixed(2)}`);
-    }; const handleCheckout = () => {
-        if (!shippingCalculated) {
-            toast.error("Please calculate shipping first");
-            return;
-        }
+    };
+
+    const handleCheckout = () => {
         navigate("/checkout");
     };
 
@@ -63,9 +136,12 @@ const Cart = () => {
                     <div className="container mx-auto px-4">
                         <div className="text-center py-16">
                             <ShoppingBag className="h-24 w-24 mx-auto text-muted-foreground mb-4" />
-                            <h1 className="text-3xl font-bold mb-4">Your Cart is Empty</h1>
+                            <h1 className="text-3xl font-bold mb-4 flex items-center justify-center gap-3">
+                                Thank you for shopping at
+                                <img src={logo} alt="Figure It" className="h-12 w-auto align-middle" />
+                            </h1>
                             <p className="text-muted-foreground mb-8">
-                                Looks like you haven't added any items to your cart yet.
+                                You will receive an email shortly with order details.
                             </p>
                             <Button onClick={() => navigate("/shop")}>
                                 Continue Shopping
@@ -79,8 +155,12 @@ const Cart = () => {
     }
 
     const subtotal = getSubtotal();
+    let shippingFee = 0;
+    if (deliveryMethod === 'shipping' && shippingInfo?.isGTA) {
+        shippingFee = shippingInfo.shippingFee || 0;
+    }
     const tax = getTax();
-    const total = getTotal();
+    const total = subtotal + shippingFee + tax;
 
     return (
         <div className="min-h-screen flex flex-col">
@@ -90,7 +170,6 @@ const Cart = () => {
                 <div className="container mx-auto px-4">
                     <h1 className="text-4xl font-bold mb-8">Shopping Cart</h1>
 
-                    {/* Inventory Disclaimer */}
                     <InventoryDisclaimer />
 
                     <div className="grid lg:grid-cols-3 gap-8">
@@ -100,7 +179,6 @@ const Cart = () => {
                                 <Card key={item.id}>
                                     <CardContent className="p-6">
                                         <div className="flex gap-4">
-                                            {/* Image */}
                                             <div className="w-24 h-24 flex-shrink-0 bg-muted rounded-lg overflow-hidden flex items-center justify-center">
                                                 {item.imageUrl ? (
                                                     <img
@@ -113,7 +191,6 @@ const Cart = () => {
                                                 )}
                                             </div>
 
-                                            {/* Details */}
                                             <div className="flex-1">
                                                 <div className="flex justify-between items-start mb-2">
                                                     <div>
@@ -145,31 +222,6 @@ const Cart = () => {
                                                     <div className="text-lg font-bold text-primary">
                                                         ${item.price.toFixed(2)}
                                                     </div>
-
-                                                    {/* Quantity Controls - Only for standard products */}
-                                                    {item.type === 'standard' && (
-                                                        <div className="flex items-center gap-2">
-                                                            <Button
-                                                                variant="outline"
-                                                                size="icon"
-                                                                className="h-8 w-8"
-                                                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                                                            >
-                                                                <Minus className="h-3 w-3" />
-                                                            </Button>
-                                                            <span className="w-12 text-center font-semibold">
-                                                                {item.quantity}
-                                                            </span>
-                                                            <Button
-                                                                variant="outline"
-                                                                size="icon"
-                                                                className="h-8 w-8"
-                                                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                                                            >
-                                                                <Plus className="h-3 w-3" />
-                                                            </Button>
-                                                        </div>
-                                                    )}
 
                                                     {item.type === 'custom' && (
                                                         <div className="text-sm text-muted-foreground">
@@ -209,40 +261,96 @@ const Cart = () => {
 
                                         <Separator />
 
-                                        {/* Shipping Calculator */}
+                                        {/* Delivery Method */}
                                         <div className="space-y-3">
-                                            <label className="text-sm font-medium">Postal Code</label>
-                                            <div className="flex gap-2">
-                                                <Input
-                                                    placeholder="M5V 3A8"
-                                                    value={postalCode}
-                                                    onChange={(e) => setPostalCode(e.target.value.toUpperCase())}
-                                                    className="flex-1"
-                                                />
-                                                <Button onClick={handleCalculateShipping} size="sm">
-                                                    Calculate
-                                                </Button>
+                                            <label className="text-sm font-medium">Delivery Method</label>
+                                            <div className="flex gap-4 mb-2">
+                                                <label className="flex items-center gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="deliveryMethod"
+                                                        value="shipping"
+                                                        checked={deliveryMethod === 'shipping'}
+                                                        onChange={() => handleDeliveryChange('shipping')}
+                                                    />
+                                                    Shipping
+                                                </label>
+                                                <label className="flex items-center gap-2">
+                                                    <input
+                                                        type="radio"
+                                                        name="deliveryMethod"
+                                                        value="pickup"
+                                                        checked={deliveryMethod === 'pickup'}
+                                                        onChange={() => handleDeliveryChange('pickup')}
+                                                    />
+                                                    Pickup
+                                                </label>
                                             </div>
-                                            {shippingCalculated && (
-                                                <p className="text-sm">
-                                                    {shippingInfo?.isGTA ? (
-                                                        <span className="text-green-600">
-                                                            ✓ Flat rate within GTA (single or multiple items): ${shippingInfo?.shippingFee.toFixed(2)}
-                                                        </span>
-                                                    ) : (
-                                                        <span className="text-amber-600">
-                                                            Shipping outside GTA - Contact us for quote
-                                                        </span>
+
+                                            {deliveryMethod === 'shipping' && (
+                                                <>
+                                                    <label className="text-sm font-medium">Postal Code (for shipping quote)</label>
+                                                    <div className="flex gap-2">
+                                                        <Input
+                                                            placeholder="M5V 3A8"
+                                                            value={postalCode}
+                                                            onChange={(e) => setPostalCode(e.target.value.toUpperCase())}
+                                                            className="flex-1"
+                                                        />
+                                                        <Button onClick={handleCalculateShipping} size="sm">
+                                                            Calculate
+                                                        </Button>
+                                                    </div>
+                                                    {shippingCalculated && (
+                                                        <p className="text-sm">
+                                                            {shippingInfo?.isGTA ? (
+                                                                <span className="text-green-600">
+                                                                    ✓ Flat rate within GTA: ${shippingInfo?.shippingFee.toFixed(2)}
+                                                                </span>
+                                                            ) : (
+                                                                <span className="text-amber-600">
+                                                                    ✓ Inquiry submitted. We'll contact you with shipping details within 24 hours.
+                                                                </span>
+                                                            )}
+                                                        </p>
                                                     )}
+                                                    {!shippingCalculated && (
+                                                        <p className="text-xs text-muted-foreground">
+                                                            Enter postal code to calculate shipping or proceed to checkout.
+                                                        </p>
+                                                    )}
+                                                </>
+                                            )}
+
+                                            {deliveryMethod === 'pickup' && (
+                                                <p className="text-green-700 text-sm">
+                                                    No shipping fee for pickup. You will be contacted for pickup arrangements.
                                                 </p>
                                             )}
-                                        </div>                                        <Separator />
+                                        </div>
 
-                                        {/* Tax Information */}
-                                        {shippingCalculated && (
+                                        {(deliveryMethod === 'shipping' || shippingCalculated) && (
                                             <div className="flex justify-between">
                                                 <span className="text-muted-foreground">
-                                                    Tax ({shippingInfo?.province} - {((shippingInfo?.taxRate || 0) * 100).toFixed(2)}%)
+                                                    Shipping
+                                                    {deliveryMethod === 'shipping' && shippingInfo?.isGTA && ' (GTA)'}
+                                                    {deliveryMethod === 'shipping' && shippingInfo && !shippingInfo.isGTA && ' (TBD)'}
+                                                </span>
+                                                <span className="font-semibold">
+                                                    {shippingInfo && !shippingInfo.isGTA ? 'TBD' : `$${shippingFee.toFixed(2)}`}
+                                                </span>
+                                            </div>
+                                        )}
+
+                                        <Separator />
+
+                                        {(deliveryMethod === 'pickup' || shippingCalculated) && (
+                                            <div className="flex justify-between">
+                                                <span className="text-muted-foreground">
+                                                    Tax
+                                                    {deliveryMethod === 'shipping' && shippingInfo?.province &&
+                                                        ` (${shippingInfo?.province} - ${((shippingInfo?.taxRate || 0) * 100).toFixed(2)}%)`
+                                                    }
                                                 </span>
                                                 <span className="font-semibold">${tax.toFixed(2)}</span>
                                             </div>
@@ -252,14 +360,16 @@ const Cart = () => {
 
                                         <div className="flex justify-between text-lg font-bold">
                                             <span>Total</span>
-                                            <span className="text-primary">${total.toFixed(2)}</span>
+                                            <span className="text-primary">
+                                                ${total.toFixed(2)}
+                                                {shippingInfo && !shippingInfo.isGTA && <span className="text-sm font-normal"> + shipping</span>}
+                                            </span>
                                         </div>
 
                                         <Button
                                             className="w-full"
                                             size="lg"
                                             onClick={handleCheckout}
-                                            disabled={!shippingCalculated}
                                         >
                                             Proceed to Checkout
                                         </Button>
@@ -278,6 +388,66 @@ const Cart = () => {
                     </div>
                 </div>
             </main>
+
+            {/* Modal for outside GTA shipping inquiry */}
+            <Modal open={showInquiryModal} onOpenChange={setShowInquiryModal}>
+                <div className="p-6 max-w-md">
+                    <h1 className="text-2xl font-bold mb-4">Let's make it happen.</h1>
+                    <p className="mb-6 text-sm text-muted-foreground leading-relaxed">
+                        Shipping outside the GTA is calculated based on your location. To ensure you get the product you want, please share your full name, email address, and phone number (optional).
+                        <br />We'll work out the best shipping option and get back to you with the details—typically within 24 hours.
+                        <br /><span className="font-bold">No payment is required until shipping is confirmed</span>
+                        <br /><span className="font-bold">Your information is used only to finalize your order.</span>
+                    </p>
+                    <form onSubmit={handleInquirySubmit} className="space-y-4">
+                        <div className="grid grid-cols-2 gap-3">
+                            <Input
+                                placeholder="First Name"
+                                value={inqFirstName}
+                                onChange={e => setInqFirstName(e.target.value)}
+                                required
+                            />
+                            <Input
+                                placeholder="Last Name"
+                                value={inqLastName}
+                                onChange={e => setInqLastName(e.target.value)}
+                                required
+                            />
+                        </div>
+                        <Input
+                            placeholder="Email"
+                            type="email"
+                            value={inqEmail}
+                            onChange={e => setInqEmail(e.target.value)}
+                            required
+                        />
+                        <Input
+                            placeholder="Phone (optional)"
+                            type="tel"
+                            value={inqPhone}
+                            onChange={e => setInqPhone(e.target.value)}
+                        />
+                        <div className="flex gap-3 pt-2">
+                            <Button
+                                type="button"
+                                variant="outline"
+                                className="flex-1"
+                                onClick={() => setShowInquiryModal(false)}
+                                disabled={inqLoading}
+                            >
+                                Cancel
+                            </Button>
+                            <Button
+                                type="submit"
+                                className="flex-1"
+                                disabled={inqLoading}
+                            >
+                                {inqLoading ? 'Submitting...' : 'Submit Inquiry'}
+                            </Button>
+                        </div>
+                    </form>
+                </div>
+            </Modal>
 
             <Footer />
         </div>

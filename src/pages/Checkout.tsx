@@ -16,6 +16,7 @@ import { Loader2 } from "lucide-react";
 import { InventoryDisclaimer } from "@/components/InventoryDisclaimer";
 import { ItemUnavailableAlert } from "@/components/ItemUnavailableAlert";
 
+
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -177,11 +178,8 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (!stripe || !elements) {
-            return;
-        }
+        if (!stripe || !elements) return;
 
-        // Validate form
         if (!formData.fullName || !formData.email || !formData.phone || !formData.address || !formData.city) {
             toast.error("Please fill in all fields");
             return;
@@ -190,52 +188,94 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
         setProcessing(true);
 
         try {
-            // Get card element
+            // Step 1: Create order in brand database FIRST
+            const orderData = await createOrder();
+
             const cardElement = elements.getElement(CardElement);
             if (!cardElement) {
                 throw new Error("Card element not found");
             }
 
-            // Create payment method
-            const { error: paymentError, paymentMethod } = await stripe.createPaymentMethod({
-                type: 'card',
-                card: cardElement,
-                billing_details: {
-                    name: formData.fullName,
-                    email: formData.email,
-                    phone: formData.phone,
-                    address: {
-                        line1: formData.address,
-                        city: formData.city,
-                        postal_code: formData.postalCode,
-                    },
-                },
+            // Step 2: Call n8n to create payment intent
+            const n8nResponse = await fetch(import.meta.env.VITE_PAYMENT_CREATE_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: orderData.id, // Brand's order ID
+                    orderNumber: orderData.order_number,
+                    brand: 'FigureIt', // ← Change this per brand
+                    //product: items.map(i => i.title).join(', '), // Product description
+                    product: 'testing',
+                    amount: Math.round(total * 100), // Convert to cents
+                    currency: 'cad',
+                    customerEmail: formData.email,
+                    customerName: formData.fullName,
+                }),
             });
 
-            if (paymentError) {
-                throw new Error(paymentError.message);
+            const paymentData = await n8nResponse.json();
+
+            if (!paymentData.success || !paymentData.clientSecret) {
+                throw new Error('Failed to create payment intent');
             }
 
-            // For demo purposes, we'll simulate a successful payment
-            // In production, you would:
-            // 1. Send payment details to your backend
-            // 2. Create a PaymentIntent on the server
-            // 3. Confirm the payment
-            console.log('Payment Method Created:', paymentMethod.id);
+            console.log('Admin Order ID:', paymentData.adminOrderId);
 
-            // Create order in database
-            const orderData = await createOrder();
+            // Step 3: Confirm payment with Stripe
+            const result = await stripe.confirmCardPayment(
+                paymentData.clientSecret,
+                {
+                    payment_method: {
+                        card: cardElement,
+                        billing_details: {
+                            name: formData.fullName,
+                            email: formData.email,
+                            phone: formData.phone,
+                            address: {
+                                line1: formData.address,
+                                city: formData.city,
+                                postal_code: formData.postalCode,
+                            },
+                        },
+                    },
+                }
+            );
 
-            // Send notification
-            await sendOrderNotification(orderData);
+            if (result.error) {
+                throw new Error(result.error.message);
+            }
 
-            // Clear cart
-            clearCart();
+            // Step 4: Update payment status via n8n
+            if (result.paymentIntent?.status === 'succeeded') {
+                console.log('Payment succeeded:', result.paymentIntent.id);
 
-            toast.success("Order placed successfully!");
+                // Update both admin DB and brand DB
+                await fetch(import.meta.env.VITE_PAYMENT_UPDATE_URL, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        brand: 'FigureIt',
+                        orderId: orderData.id, // Brand order ID
+                        paymentIntentId: result.paymentIntent.id,
+                        status: 'paid',
+                        paymentMethod: 'card',
+                        // Send brand database credentials so n8n can update it
+                        brandDatabaseUrl: import.meta.env.VITE_SUPABASE_URL,
+                        brandDatabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
+                    }),
+                });
 
-            // Navigate to confirmation page
-            onSuccess(orderData.id);
+                // Send order notification
+                await sendOrderNotification(orderData);
+
+                // Clear cart
+                clearCart();
+
+                toast.success("Order placed successfully!");
+                onSuccess(orderData.id);
+            } else {
+                throw new Error('Payment was not successful');
+            }
 
         } catch (error: any) {
             console.error('Payment error:', error);

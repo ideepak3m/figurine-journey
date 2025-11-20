@@ -1,0 +1,20 @@
+CREATE TABLE shipping_inquiries (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  full_name TEXT NOT NULL,
+  email TEXT NOT NULL,
+  phone TEXT,
+  postal_code TEXT NOT NULL,
+  cart_snapshot JSONB,
+  shipping_method TEXT NOT NULL DEFAULT 'outside_gta',
+  status TEXT NOT NULL DEFAULT 'pending',
+  action_taken TEXT,
+  action_description TEXT,
+  quote_amount NUMERIC(10, 2),
+  quote_currency TEXT DEFAULT 'CAD',
+  stripe_invoice_id TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  resolved_at TIMESTAMP WITH TIME ZONE,
+  source TEXT DEFAULT 'checkout_form',
+  handled_by TEXT
+);

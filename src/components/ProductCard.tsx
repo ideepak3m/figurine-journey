@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { useCartStore } from "@/store/cartStore";
@@ -16,6 +17,8 @@ const ProductCard = ({ product }: ProductCardProps) => {
   // Determine if product is available for purchase
   const isAvailable = product.asset_status === 'inventory';
   const statusLabel = isAvailable ? 'Available' : 'Showcase';
+
+  const [added, setAdded] = useState(false);
 
   const handleAddToCart = () => {
     if (!isAvailable) {
@@ -44,6 +47,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
       description: "⚠️ Item not reserved - complete payment to guarantee availability",
       duration: 4000,
     });
+    setAdded(true);
   };
 
   const handleCustomize = () => {
@@ -93,9 +97,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <Button
               className="flex-1"
               onClick={handleAddToCart}
-              disabled={!product.price}
+              disabled={!product.price || added}
             >
-              Add to Cart
+              {added ? "Added" : "Add to Cart"}
             </Button>
             <Button
               variant="outline"

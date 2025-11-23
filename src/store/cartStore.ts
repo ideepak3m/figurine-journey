@@ -28,6 +28,7 @@ export interface ShippingInfo {
     shippingFee: number;
     province?: string;
     taxRate?: number;
+    isPickup?: boolean;
 }
 
 interface CartStore {

@@ -470,15 +470,16 @@ const Checkout = () => {
     const navigate = useNavigate();
     const { items, shippingInfo } = useCartStore();
 
-    // Redirect if cart is empty or shipping not calculated
+    // Redirect if cart is empty
     if (items.length === 0) {
         navigate("/cart");
         return null;
     }
 
-    if (!shippingInfo) {
-        toast.error("Please calculate shipping first");
-        navigate("/cart");
+    // Allow if shippingInfo exists OR isPickup is true
+    if (!shippingInfo || (!shippingInfo.isPickup && !shippingInfo.shippingFee)) {
+        toast.error("Please calculate shipping or select pickup");
+        // Do not navigate away, just show the toast and keep the page
         return null;
     }
 

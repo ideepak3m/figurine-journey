@@ -134,7 +134,7 @@ const CustomOrders = () => {
             phone: customerPhone,
             address: customerAddress,
           },
-          emailRedirectTo: `${window.location.origin}/login`
+          emailRedirectTo: `${window.location.origin}/#/register-callback?type=custom-order`
         }
       });
 

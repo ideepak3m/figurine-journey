@@ -146,34 +146,34 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
         }
     };
 
-    const sendOrderNotification = async (orderData: any) => {
-        const webhookUrl = import.meta.env.VITE_N8N_ORDER_WEBHOOK_URL;
+    // const sendOrderNotification = async (orderData: any) => {
+    //     const webhookUrl = import.meta.env.VITE_N8N_ORDER_WEBHOOK_URL;
 
-        if (!webhookUrl) {
-            console.log('n8n webhook URL not configured, skipping notification');
-            return;
-        }
+    //     if (!webhookUrl) {
+    //         console.log('n8n webhook URL not configured, skipping notification');
+    //         return;
+    //     }
 
-        try {
-            // Send only the order ID to n8n
-            // n8n will fetch order details from Supabase and send emails
-            await fetch(webhookUrl, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    event: 'order.created',
-                    order_id: orderData.id,
-                    order_number: orderData.order_number,
-                }),
-            });
-        } catch (error) {
-            console.error('Error sending notification to n8n:', error);
-            // Don't throw - notification failure shouldn't break the order
-            // n8n can also be triggered by Supabase webhooks as backup
-        }
-    };
+    //     try {
+    //         // Send only the order ID to n8n
+    //         // n8n will fetch order details from Supabase and send emails
+    //         await fetch(webhookUrl, {
+    //             method: 'POST',
+    //             headers: {
+    //                 'Content-Type': 'application/json',
+    //             },
+    //             body: JSON.stringify({
+    //                 event: 'order.created',
+    //                 order_id: orderData.id,
+    //                 order_number: orderData.order_number,
+    //             }),
+    //         });
+    //     } catch (error) {
+    //         console.error('Error sending notification to n8n:', error);
+    //         // Don't throw - notification failure shouldn't break the order
+    //         // n8n can also be triggered by Supabase webhooks as backup
+    //     }
+    // };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -196,24 +196,23 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                 throw new Error("Card element not found");
             }
 
-            // Step 2: Call n8n to create payment intent
-            const n8nResponse = await fetch(import.meta.env.VITE_PAYMENT_CREATE_URL, {
+            // Step 2: Create payment intent directly in the app
+            const paymentResponse = await fetch('/api/create-payment-intent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    orderId: orderData.id, // Brand's order ID
+                    orderId: orderData.id,
                     orderNumber: orderData.order_number,
-                    brand: 'FigureIt', // ← Change this per brand
-                    //product: items.map(i => i.title).join(', '), // Product description
+                    brand: 'FigureIt',
                     product: 'testing',
-                    amount: Math.round(total * 100), // Convert to cents
+                    amount: Math.round(total * 100),
                     currency: 'cad',
                     customerEmail: formData.email,
                     customerName: formData.fullName,
                 }),
             });
 
-            const paymentData = await n8nResponse.json();
+            const paymentData = await paymentResponse.json();
 
             if (!paymentData.success || !paymentData.clientSecret) {
                 throw new Error('Failed to create payment intent');
@@ -245,28 +244,40 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                 throw new Error(result.error.message);
             }
 
-            // Step 4: Update payment status via n8n
+            // Step 4: Update payment status directly
             if (result.paymentIntent?.status === 'succeeded') {
                 console.log('Payment succeeded:', result.paymentIntent.id);
 
-                // Update both admin DB and brand DB
-                await fetch(import.meta.env.VITE_PAYMENT_UPDATE_URL, {
+                await fetch('/api/update-payment-status', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         brand: 'FigureIt',
-                        orderId: orderData.id, // Brand order ID
+                        orderId: orderData.id,
                         paymentIntentId: result.paymentIntent.id,
                         status: 'paid',
                         paymentMethod: 'card',
-                        // Send brand database credentials so n8n can update it
-                        brandDatabaseUrl: import.meta.env.VITE_SUPABASE_URL,
-                        brandDatabaseKey: import.meta.env.VITE_SUPABASE_ANON_KEY,
                     }),
                 });
 
-                // Send order notification
-                await sendOrderNotification(orderData);
+                // Prepare email template data
+                const imageHtml = items.map(item => item.imageUrl ? `<img src="${item.imageUrl}" alt="Order Image" style="max-width:300px;" />` : '').join('');
+                const nameParts = formData.fullName.split(' ');
+                const customerName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts.slice(1).join(' ')}` : formData.fullName;
+
+                // Send order confirmation email
+                await fetch('/api/send-email', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        to: formData.email,
+                        subject: 'Order Confirmation',
+                        templateData: {
+                            orderImages: imageHtml,
+                            customerName: customerName,
+                        },
+                    }),
+                });
 
                 // Clear cart
                 clearCart();

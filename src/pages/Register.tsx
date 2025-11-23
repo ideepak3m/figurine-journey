@@ -22,7 +22,13 @@ export default function Register() {
             return;
         }
         setIsLoading(true);
-        const { error } = await supabase.auth.signUp({ email, password });
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                emailRedirectTo: `${window.location.origin}/#/register-callback?type=standard`,
+            }
+        });
         setIsLoading(false);
         if (error) {
             toast({ title: "Registration failed", description: error.message, variant: "destructive" });

@@ -210,7 +210,7 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                     customerEmail: formData.email,
                     customerName: formData.fullName,
                 }),
-            });
+            }); 
 
             const paymentData = await paymentResponse.json();
 

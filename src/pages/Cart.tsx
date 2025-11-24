@@ -37,8 +37,18 @@ const Cart = () => {
     const handleDeliveryChange = (method: 'shipping' | 'pickup') => {
         setDeliveryMethod(method);
         if (method === 'pickup') {
-            setShippingInfo(undefined);
+            setShippingInfo({
+                isPickup: true,
+                shippingFee: 0,
+                postalCode: '',
+                isGTA: false,
+                province: '',
+                taxRate: TAX_RATES.ON,
+            });
             setPostalCode('');
+            setShippingCalculated(true);
+        } else {
+            setShippingInfo(undefined);
             setShippingCalculated(false);
         }
     };
@@ -325,8 +335,8 @@ const Cart = () => {
                                                         No shipping fee for pickup. You will be contacted for pickup arrangements.
                                                     </p>
                                                     <PickupMap
-                                                    lat={43.65744}
-                                                    lng={-79.79783}
+                                                        lat={43.65744}
+                                                        lng={-79.79783}
                                                         label="Pickup Location (Brampton North West, ON)"
                                                     />
                                                 </div>

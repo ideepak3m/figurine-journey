@@ -196,8 +196,8 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                 throw new Error("Card element not found");
             }
 
-            // Step 2: Create payment intent directly in the app
-            const paymentResponse = await fetch('/api/create-payment-intent', {
+            // Step 2: Create payment intent via external payment service
+            const paymentResponse = await fetch(import.meta.env.VITE_PAYMENT_SERVICE_URL + '/api/create-payment-intent', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({

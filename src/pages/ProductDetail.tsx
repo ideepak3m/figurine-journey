@@ -41,12 +41,17 @@ const ProductDetail = () => {
             return;
         }
 
+        // Use discounted price if available, otherwise use regular price
+        const priceToUse = product.discounted_price && product.discounted_price < product.price
+            ? product.discounted_price
+            : product.price;
+
         addItem({
             id: product.id,
             type: 'standard',
             title: product.title || 'Untitled Product',
             description: product.description || undefined,
-            price: Number(product.price),
+            price: Number(priceToUse),
             quantity: 1,
             imageUrl: product.asset_url,
             assetId: product.id,
@@ -66,6 +71,50 @@ const ProductDetail = () => {
     const formatPrice = (price: number | null) => {
         if (!price) return 'Price not available';
         return `$${price.toFixed(2)}`;
+    };
+
+    const renderPrice = () => {
+        if (!product.price) {
+            return (
+                <div className="text-3xl font-bold text-primary">
+                    Price not available
+                </div>
+            );
+        }
+
+        if (product.discounted_price && product.discounted_price < product.price) {
+            return (
+                <div className="space-y-2">
+                    <div className="flex items-center gap-3">
+                        <div className="text-3xl font-bold text-primary">
+                            ${product.discounted_price.toFixed(2)}
+                        </div>
+                        <div className="text-xl line-through text-muted-foreground">
+                            ${product.price.toFixed(2)}
+                        </div>
+                        <span className="text-sm font-semibold bg-red-500 text-white px-3 py-1 rounded">
+                            SALE
+                        </span>
+                    </div>
+                    {!isAvailable && (
+                        <p className="text-sm text-muted-foreground font-normal">
+                            This is a showcase piece. Contact us to create something similar!
+                        </p>
+                    )}
+                </div>
+            );
+        }
+
+        return (
+            <div className="text-3xl font-bold text-primary">
+                {formatPrice(product.price)}
+                {!isAvailable && (
+                    <p className="text-sm text-muted-foreground font-normal mt-2">
+                        This is a showcase piece. Contact us to create something similar!
+                    </p>
+                )}
+            </div>
+        );
     };
 
     if (isLoading) {
@@ -166,14 +215,7 @@ const ProductDetail = () => {
                                 )}
                             </div>
 
-                            <div className="text-3xl font-bold text-primary">
-                                {formatPrice(product.price)}
-                                {!isAvailable && (
-                                    <p className="text-sm text-muted-foreground font-normal mt-2">
-                                        This is a showcase piece. Contact us to create something similar!
-                                    </p>
-                                )}
-                            </div>                            <div className="prose max-w-none">
+                            {renderPrice()}                            <div className="prose max-w-none">
                                 <p className="text-lg text-muted-foreground">
                                     {product.description || 'No description available for this product.'}
                                 </p>

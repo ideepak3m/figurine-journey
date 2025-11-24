@@ -36,12 +36,17 @@ const ProductCard = ({ product }: ProductCardProps) => {
       return;
     }
 
+    // Use discounted price if available, otherwise use regular price
+    const priceToUse = product.discounted_price && product.discounted_price < product.price
+      ? product.discounted_price
+      : product.price;
+
     addItem({
       id: product.id,
       type: 'standard',
       title: product.title || 'Untitled Product',
       description: product.description || undefined,
-      price: Number(product.price),
+      price: Number(priceToUse),
       quantity: 1,
       imageUrl: product.asset_url,
       assetId: product.id,
@@ -71,6 +76,26 @@ const ProductCard = ({ product }: ProductCardProps) => {
     return `$${price.toFixed(2)}`;
   };
 
+  const renderPrice = () => {
+    if (!product.price) {
+      return <p className="text-2xl font-bold text-primary">Price not available</p>;
+    }
+
+    if (product.discounted_price && product.discounted_price < product.price) {
+      return (
+        <div className="flex items-center gap-3">
+          <p className="text-2xl font-bold text-primary">${product.discounted_price.toFixed(2)}</p>
+          <p className="text-lg line-through text-muted-foreground">${product.price.toFixed(2)}</p>
+          <span className="text-xs font-semibold bg-red-500 text-white px-2 py-1 rounded">
+            SALE
+          </span>
+        </div>
+      );
+    }
+
+    return <p className="text-2xl font-bold text-primary">${product.price.toFixed(2)}</p>;
+  };
+
   return (
     <Card className="group overflow-hidden transition-all duration-300 hover:shadow-lg cursor-pointer">
       <div
@@ -96,7 +121,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
         <p className="text-sm text-muted-foreground mb-4 line-clamp-2">
           {product.description || 'No description available'}
         </p>
-        <p className="text-2xl font-bold text-primary">{formatPrice(product.price)}</p>
+        {renderPrice()}
       </CardContent>
       <CardFooter className="p-6 pt-0 flex gap-2 flex-col items-stretch">
         {isAvailable ? (

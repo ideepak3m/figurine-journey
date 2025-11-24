@@ -89,7 +89,14 @@ const Cart = () => {
             ).join('');
 
             const emailUrl = import.meta.env.VITE_EMAIL_SERVICE_URL || window.location.origin;
+            console.log('Email URL:', emailUrl);
             console.log('Sending shipping inquiry email to:', emailUrl + '/api/send-email');
+            console.log('Email data:', {
+                to: inqEmail,
+                cc: 'info@figureit.ca',
+                postalCode: postalCode.toUpperCase(),
+                customerName: fullName,
+            });
 
             const emailResponse = await fetch(emailUrl + '/api/send-email', {
                 method: 'POST',
@@ -109,14 +116,19 @@ const Cart = () => {
                 }),
             });
 
+            console.log('Email response status:', emailResponse.status);
+            const responseText = await emailResponse.text();
+            console.log('Email response:', responseText);
+
             if (!emailResponse.ok) {
-                console.error('Email sending failed:', await emailResponse.text());
+                console.error('Email sending failed with status:', emailResponse.status, responseText);
+                toast.error('Inquiry submitted, but email notification failed. We will still contact you.');
             } else {
                 console.log('Shipping inquiry email sent successfully');
             }
         } catch (emailError) {
             console.error('Email sending error:', emailError);
-            // Don't fail the inquiry if email fails
+            toast.error('Inquiry submitted, but email notification failed. We will still contact you.');
         }
 
         setInqLoading(false);

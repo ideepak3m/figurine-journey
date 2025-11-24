@@ -8,6 +8,7 @@ import { useState, useEffect } from "react";
 import { useCartStore } from "@/store/cartStore";
 import { supabase } from "@/lib/supabase";
 import logo from "@/assets/logo.jpg";
+import TestimonialModal from "@/components/TestimonialModal";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -21,6 +22,7 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [testimonialModalOpen, setTestimonialModalOpen] = useState(false);
   const [user, setUser] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const itemCount = useCartStore((state) => state.getItemCount());
@@ -87,6 +89,16 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
+
+            {/* Feedback Emoji Button */}
+            <button
+              onClick={() => setTestimonialModalOpen(true)}
+              className="text-2xl transition-transform hover:scale-110"
+              title="Leave us feedback"
+              aria-label="Leave us feedback"
+            >
+              💬
+            </button>
 
             {/* Cart Button */}
             <Link to="/cart">
@@ -219,7 +231,7 @@ const Header = () => {
           <nav className="md:hidden pb-4 space-y-2">
             {navLinks.map((link) => (
               <Link
-                key={link.path}
+                key={link.path + '-mobile'}
                 to={link.path}
                 onClick={() => setMobileMenuOpen(false)}
                 className={`block py-2 text-sm font-medium transition-colors hover:text-primary ${isActive(link.path)
@@ -230,9 +242,23 @@ const Header = () => {
                 {link.label}
               </Link>
             ))}
+            {/* Feedback Button - Mobile */}
+            <button
+              onClick={() => {
+                setMobileMenuOpen(false);
+                setTestimonialModalOpen(true);
+              }}
+              className="flex items-center gap-2 py-2 text-sm font-medium transition-colors hover:text-primary text-muted-foreground w-full text-left"
+            >
+              <span className="text-xl">💬</span>
+              <span>Leave us feedback</span>
+            </button>
           </nav>
         )}
       </div>
+
+      {/* Testimonial Modal */}
+      <TestimonialModal open={testimonialModalOpen} onOpenChange={setTestimonialModalOpen} />
     </header>
   );
 };

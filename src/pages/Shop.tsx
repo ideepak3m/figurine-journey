@@ -2,6 +2,7 @@ import { useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
+import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { Button } from "@/components/ui/button";
 import { useProducts } from "@/hooks/useProducts";
 import { useAssetCategories } from "@/hooks/useCategories";
@@ -44,7 +45,7 @@ const Shop = () => {
           <div className="text-center mb-12">
             <h1 className="text-5xl font-bold mb-4">Our Shop</h1>
             <p className="text-xl text-muted-foreground">
-              Handcrafted figurines that bring your memories to life
+              Figurines that tell your story, handcrafted with joy since 2016
             </p>
           </div>
 
@@ -118,6 +119,14 @@ const Shop = () => {
                 </div>
               )}
             </>
+          )}
+
+          {/* Testimonials Section */}
+          {!isLoading && !error && (
+            <div className="mt-16">
+              <h2 className="text-3xl font-bold text-center mb-8">What Our Customers Say</h2>
+              <TestimonialCarousel visibleCount={5} />
+            </div>
           )}
         </div>
       </main>

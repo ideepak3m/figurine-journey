@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 // import { ReviewCarousel, Review } from "@/components/ReviewCarousel";
@@ -13,13 +12,15 @@ interface ProductCardProps {
 
 const ProductCard = ({ product }: ProductCardProps) => {
   const addItem = useCartStore((state) => state.addItem);
+  const items = useCartStore((state) => state.items);
   const navigate = useNavigate();
 
   // Determine if product is available for purchase
   const isAvailable = product.asset_status === 'inventory';
   const statusLabel = isAvailable ? 'Available' : 'Showcase';
 
-  const [added, setAdded] = useState(false);
+  // Check if product is already in cart
+  const isInCart = items.some(item => item.assetId === product.id);
 
   const handleAddToCart = () => {
     if (!isAvailable) {
@@ -56,7 +57,6 @@ const ProductCard = ({ product }: ProductCardProps) => {
       description: "⚠️ Item not reserved - complete payment to guarantee availability",
       duration: 4000,
     });
-    setAdded(true);
   };
 
   const handleCustomize = () => {
@@ -132,9 +132,9 @@ const ProductCard = ({ product }: ProductCardProps) => {
                 e.stopPropagation();
                 handleAddToCart();
               }}
-              disabled={!product.price || added}
+              disabled={!product.price || isInCart}
             >
-              {added ? "Added" : "Add to Cart"}
+              {isInCart ? "In Cart" : "Add to Cart"}
             </Button>
             <Button
               variant="outline"

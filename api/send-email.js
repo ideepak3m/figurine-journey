@@ -28,7 +28,7 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { to, subject, templateData, templateName = 'GeneralEmail' } = req.body;
+    const { to, cc, subject, templateData, templateName = 'GeneralEmail' } = req.body;
 
     // Load the email template
     const templatePath = path.join(process.cwd(), 'email-templates', templateName, 'email.html');
@@ -61,10 +61,11 @@ export default async function handler(req, res) {
         await transporter.sendMail({
             from: process.env.SMTP_FROM,
             to,
+            cc,
             subject,
             html,
         });
-        console.log('Email sent successfully to:', to);
+        console.log('Email sent successfully to:', to, 'cc:', cc);
         res.status(200).json({ success: true });
     } catch (error) {
         console.error('Email sending error:', error);

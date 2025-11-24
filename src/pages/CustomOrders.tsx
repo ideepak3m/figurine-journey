@@ -385,6 +385,7 @@ const CustomOrders = () => {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             to: customerEmail,
+            cc: 'info@figureit.ca',
             subject: 'Custom Order Confirmation - Figure It!',
             templateData: {
               orderItem: orderImageHtml,
@@ -856,8 +857,6 @@ const CustomOrders = () => {
                               value={customerEmail}
                               onChange={e => setCustomerEmail(e.target.value)}
                               required
-                              disabled={isLoggedIn}
-                              className={isLoggedIn ? "bg-gray-100 cursor-not-allowed" : ""}
                             />
                           </div>
                         </div>

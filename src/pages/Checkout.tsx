@@ -19,7 +19,7 @@ import { ItemUnavailableAlert } from "@/components/ItemUnavailableAlert";
 
 // Initialize Stripe
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-
+console.log("Stripe Publishable Key:", import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 // Card element styling
 const CARD_ELEMENT_OPTIONS = {
     style: {
@@ -197,7 +197,7 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
             }
 
             // Step 2: Create payment intent via external payment service
-            const paymentResponse = await fetch(import.meta.env.VITE_PAYMENT_SERVICE_URL + '/api/create-payment-intent', {
+            const paymentResponse = await fetch(import.meta.env.VITE_PAYMENT_CREATE_URL, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -210,7 +210,7 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                     customerEmail: formData.email,
                     customerName: formData.fullName,
                 }),
-            }); 
+            });
 
             const paymentData = await paymentResponse.json();
 
@@ -248,7 +248,7 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
             if (result.paymentIntent?.status === 'succeeded') {
                 console.log('Payment succeeded:', result.paymentIntent.id);
 
-                await fetch('/api/update-payment-status', {
+                await fetch(import.meta.env.VITE_PAYMENT_UPDATE_URL, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -266,7 +266,7 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                 const customerName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts.slice(1).join(' ')}` : formData.fullName;
 
                 // Send order confirmation email
-                await fetch('/api/send-email', {
+                await fetch(import.meta.env.VITE_EMAIL_SERVICE_URL + '/api/send-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

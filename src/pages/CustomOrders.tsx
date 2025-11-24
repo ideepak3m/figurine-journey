@@ -379,8 +379,9 @@ const CustomOrders = () => {
           : '';
         console.log('Email HTML for orderItem:', orderImageHtml);
 
-        const emailUrl = import.meta.env.VITE_EMAIL_SERVICE_URL || '';
-        await fetch(emailUrl + '/api/send-email', {
+        const emailUrl = import.meta.env.VITE_EMAIL_SERVICE_URL || window.location.origin;
+        console.log('Sending custom order email to:', emailUrl + '/api/send-email');
+        const emailResponse = await fetch(emailUrl + '/api/send-email', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -394,6 +395,13 @@ const CustomOrders = () => {
             templateName: 'CustomOrderEmail',
           }),
         });
+
+        if (!emailResponse.ok) {
+          console.error('Email sending failed:', await emailResponse.text());
+          throw new Error('Email failed');
+        } else {
+          console.log('Email sent successfully');
+        }
       } catch (emailError) {
         console.error('Email sending error:', emailError);
         // Don't fail the order if email fails

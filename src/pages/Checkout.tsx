@@ -266,8 +266,9 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                 const customerName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts.slice(1).join(' ')}` : formData.fullName;
 
                 // Send order confirmation email
-                const emailUrl = import.meta.env.VITE_EMAIL_SERVICE_URL || '';
-                await fetch(emailUrl + '/api/send-email', {
+                const emailUrl = import.meta.env.VITE_EMAIL_SERVICE_URL || window.location.origin;
+                console.log('Sending email to:', emailUrl + '/api/send-email');
+                const emailResponse = await fetch(emailUrl + '/api/send-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -279,6 +280,12 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                         },
                     }),
                 });
+
+                if (!emailResponse.ok) {
+                    console.error('Email sending failed:', await emailResponse.text());
+                } else {
+                    console.log('Email sent successfully');
+                }
 
                 // Clear cart
                 clearCart();

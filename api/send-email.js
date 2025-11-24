@@ -7,7 +7,9 @@ export default async function handler(req, res) {
     const allowedOrigins = [
         'http://localhost:8080',
         'http://localhost:3000',
-        'https://figurine-journey.vercel.app'
+        'https://figurine-journey.vercel.app',
+        'https://www.figureit.ca',
+        'https://figureit.ca'
     ];
     const origin = req.headers.origin;
     if (allowedOrigins.includes(origin)) {

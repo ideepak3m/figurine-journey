@@ -6,6 +6,7 @@ export default async function handler(req, res) {
     // CORS headers
     const allowedOrigins = [
         'http://localhost:8080',
+        'http://localhost:3000',
         'https://figurine-journey.vercel.app'
     ];
     const origin = req.headers.origin;
@@ -35,12 +36,14 @@ export default async function handler(req, res) {
     try {
         html = fs.readFileSync(templatePath, 'utf8');
     } catch (err) {
-        return res.status(500).json({ error: 'Template not found' });
+        console.error('Template load error:', err);
+        return res.status(500).json({ error: 'Template not found', path: templatePath });
     }
 
     // Simple variable replacement (for more complex, use Handlebars)
     Object.entries(templateData || {}).forEach(([key, value]) => {
-        html = html.replace(new RegExp(`{{${key}}}`, 'g'), value);
+        // Replace both {{key}} and {{ key }} (with or without spaces)
+        html = html.replace(new RegExp(`{{\\s*${key}\\s*}}`, 'g'), value);
     });
 
     // Create transporter
@@ -61,8 +64,10 @@ export default async function handler(req, res) {
             subject,
             html,
         });
+        console.log('Email sent successfully to:', to);
         res.status(200).json({ success: true });
     } catch (error) {
+        console.error('Email sending error:', error);
         res.status(500).json({ error: error.message });
     }
 }

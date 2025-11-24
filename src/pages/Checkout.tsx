@@ -266,7 +266,8 @@ const CheckoutForm = ({ onSuccess }: CheckoutFormProps) => {
                 const customerName = nameParts.length > 1 ? `${nameParts[0]} ${nameParts.slice(1).join(' ')}` : formData.fullName;
 
                 // Send order confirmation email
-                await fetch(import.meta.env.VITE_EMAIL_SERVICE_URL + '/api/send-email', {
+                await fetch('/api/send-email', {
+                //await fetch(import.meta.env.VITE_EMAIL_SERVICE_URL + '/api/send-email', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({

@@ -31,7 +31,8 @@ const ProductDetail = () => {
 
         if (!isAvailable) {
             toast.info("This is a showcase item. Let's create something similar for you!");
-            navigate('/custom-orders');
+            const encodedUrl = encodeURIComponent(product.asset_url || '');
+            navigate(`/custom-orders?showcaseImage=${encodedUrl}`);
             return;
         }
 
@@ -54,7 +55,12 @@ const ProductDetail = () => {
         toast.success(`${product.title || 'Product'} added to cart!`);
     };
     const handleCustomize = () => {
-        navigate('/custom-orders');
+        if (product?.asset_url) {
+            const encodedUrl = encodeURIComponent(product.asset_url);
+            navigate(`/custom-orders?showcaseImage=${encodedUrl}`);
+        } else {
+            navigate('/custom-orders');
+        }
     };
 
     const formatPrice = (price: number | null) => {

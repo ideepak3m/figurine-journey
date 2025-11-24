@@ -1,6 +1,7 @@
 // src/pages/CustomOrders.tsx
 
 import { useState, useEffect } from "react";
+import { useSearchParams, useLocation, useNavigate } from "react-router-dom";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
@@ -29,6 +30,10 @@ const CustomOrders = () => {
   const [showEmailModal, setShowEmailModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const [showcaseImageUrl, setShowcaseImageUrl] = useState<string | null>(null);
   const [girlCount, setGirlCount] = useState("1");
   const [boyCount, setBoyCount] = useState("0");
   const [dog, setDog] = useState("yes");
@@ -53,6 +58,48 @@ const CustomOrders = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [isLoadingUser, setIsLoadingUser] = useState(true);
 
+  // Extract showcase image from URL params
+  useEffect(() => {
+    console.log('Full location:', location);
+    console.log('Location pathname:', location.pathname);
+    console.log('Location search:', location.search);
+    console.log('Location hash:', location.hash);
+    console.log('Window location href:', window.location.href);
+
+    // Try useSearchParams first
+    let showcaseImage = searchParams.get('showcaseImage');
+
+    // Fallback to manual parsing from location.search for HashRouter compatibility
+    if (!showcaseImage && location.search) {
+      const params = new URLSearchParams(location.search);
+      showcaseImage = params.get('showcaseImage');
+    }
+
+    // Another fallback: parse from window.location.href directly
+    if (!showcaseImage) {
+      const urlParams = new URLSearchParams(window.location.search);
+      showcaseImage = urlParams.get('showcaseImage');
+      console.log('From window.location.search:', showcaseImage);
+    }
+
+    // Final fallback: parse from the full href
+    if (!showcaseImage && window.location.href.includes('showcaseImage=')) {
+      const match = window.location.href.match(/showcaseImage=([^&]+)/);
+      if (match) {
+        showcaseImage = match[1];
+        console.log('From href regex match:', showcaseImage);
+      }
+    }
+
+    console.log('Final showcase image from URL params:', showcaseImage);
+
+    if (showcaseImage) {
+      const decodedUrl = decodeURIComponent(showcaseImage);
+      console.log('Decoded showcase image URL:', decodedUrl);
+      setShowcaseImageUrl(decodedUrl);
+    }
+  }, [searchParams, location.search, location.pathname]);
+
   // Check if user is logged in and fetch their profile
   useEffect(() => {
     const checkUser = async () => {
@@ -71,11 +118,11 @@ const CustomOrders = () => {
             .single();
 
           if (profile && !error) {
-            // Auto-fill form with user data
+            // Auto-fill form with user data from user_profiles table
             setCustomerName(profile.full_name || '');
             setCustomerEmail(profile.email || user.email || '');
-            setCustomerPhone(user.user_metadata?.phone || '');
-            setCustomerAddress(user.user_metadata?.address || '');
+            setCustomerPhone(profile.phone || user.user_metadata?.phone || '');
+            setCustomerAddress(profile.address || user.user_metadata?.address || '');
           } else {
             // Fallback to auth metadata
             setCustomerName(user.user_metadata?.full_name || '');
@@ -124,39 +171,72 @@ const CustomOrders = () => {
     setIsSubmitting(true);
 
     try {
-      // 1. Register user with Supabase Auth
-      const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
-        email: customerEmail,
-        password: password,
-        options: {
-          data: {
-            full_name: customerName,
-            phone: customerPhone,
-            address: customerAddress,
-          },
-          emailRedirectTo: `${window.location.origin}/#/register-callback?type=custom-order`
+      let userId = currentUser?.id;
+
+      // 1. Register user with Supabase Auth (only if not logged in)
+      if (!isLoggedIn) {
+        const { data: signUpData, error: signUpError } = await supabase.auth.signUp({
+          email: customerEmail,
+          password: password,
+          options: {
+            data: {
+              full_name: customerName,
+              phone: customerPhone,
+              address: customerAddress,
+            },
+            emailRedirectTo: `${window.location.origin}/#/register-callback?type=custom-order`
+          }
+        });
+
+        if (signUpError) {
+          toast({
+            title: 'Registration failed',
+            description: signUpError.message,
+            variant: 'destructive'
+          });
+          setIsSubmitting(false);
+          return;
         }
-      });
 
-      if (signUpError) {
-        toast({
-          title: 'Registration failed',
-          description: signUpError.message,
-          variant: 'destructive'
-        });
-        setIsSubmitting(false);
-        return;
-      }
+        userId = signUpData.user?.id;
+        if (!userId) {
+          toast({
+            title: 'Registration failed',
+            description: 'No user ID returned.',
+            variant: 'destructive'
+          });
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        // Update user profile if name, phone, or address was filled in
+        if (userId) {
+          const { error: updateError } = await supabase
+            .from('user_profiles')
+            .update({
+              full_name: customerName,
+              phone: customerPhone,
+              address: customerAddress,
+            })
+            .eq('id', userId);
 
-      const userId = signUpData.user?.id;
-      if (!userId) {
-        toast({
-          title: 'Registration failed',
-          description: 'No user ID returned.',
-          variant: 'destructive'
-        });
-        setIsSubmitting(false);
-        return;
+          if (updateError) {
+            console.error('Profile update error:', updateError);
+          }
+
+          // Update user metadata as well
+          const { error: metadataError } = await supabase.auth.updateUser({
+            data: {
+              full_name: customerName,
+              phone: customerPhone,
+              address: customerAddress,
+            }
+          });
+
+          if (metadataError) {
+            console.error('Metadata update error:', metadataError);
+          }
+        }
       }
 
       // Note: We don't sign in the user because email needs to be confirmed first
@@ -224,6 +304,7 @@ const CustomOrders = () => {
           theme: selectedTheme === "festive" ? festive : selectedTheme === "others" ? others : selectedTheme,
           festive: selectedTheme === "festive" ? festive : null,
           others: selectedTheme === "others" ? others : null,
+          showCaseImage: showcaseImageUrl || null,
         })
         .select()
         .single();
@@ -237,7 +318,9 @@ const CustomOrders = () => {
         });
 
         // Sign out the user if order failed
-        await supabase.auth.signOut();
+        if (!isLoggedIn) {
+          await supabase.auth.signOut();
+        }
         setIsSubmitting(false);
         return;
       }
@@ -288,13 +371,58 @@ const CustomOrders = () => {
         }
       }
 
-      // 7. Sign out the user (they need to verify email first)
-      await supabase.auth.signOut();
+      // 7. Send custom order confirmation email
+      try {
+        console.log('Sending email with showcase image URL:', showcaseImageUrl);
+        const orderImageHtml = showcaseImageUrl
+          ? `<img src="${showcaseImageUrl}" alt="Custom Order Reference" style="max-width:300px; border-radius:8px;" />`
+          : '';
+        console.log('Email HTML for orderItem:', orderImageHtml);
 
-      // 8. Show success modal
-      setShowEmailModal(true);
+        const emailUrl = import.meta.env.VITE_EMAIL_SERVICE_URL || '';
+        await fetch(emailUrl + '/api/send-email', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            to: customerEmail,
+            subject: 'Custom Order Confirmation - Figure It!',
+            templateData: {
+              orderItem: orderImageHtml,
+              customerName: customerName,
+            },
+            templateName: 'CustomOrderEmail',
+          }),
+        });
+      } catch (emailError) {
+        console.error('Email sending error:', emailError);
+        // Don't fail the order if email fails
+        toast({
+          title: 'Order submitted successfully',
+          description: 'However, the confirmation email could not be sent. We will contact you shortly.',
+          variant: 'default'
+        });
+      }
 
-      // 8. Reset form
+      // 8. Sign out new users (they need to verify email first), but keep logged-in users signed in
+      if (!isLoggedIn) {
+        await supabase.auth.signOut();
+      }
+
+      // 9. Show success modal (only for new users)
+      if (!isLoggedIn) {
+        setShowEmailModal(true);
+      } else {
+        // For logged-in users, show a simple success toast
+        toast({
+          title: 'Order submitted successfully!',
+          description: 'We will contact you shortly via WhatsApp to confirm your custom order.',
+          variant: 'default'
+        });
+        // Optionally navigate back to shop
+        navigate('/shop');
+      }
+
+      // 10. Reset form
       setGirlCount("1");
       setBoyCount("0");
       setDog("yes");
@@ -303,14 +431,18 @@ const CustomOrders = () => {
       setSelectedTheme("");
       setFestive("");
       setOthers("");
-      setCustomerName("");
-      setCustomerEmail("");
-      setCustomerPhone("");
-      setCustomerAddress("");
       setPhotoFiles([]);
-      setPassword("");
-      setRePassword("");
       setFormTouched(false);
+
+      // Only reset personal info for new users (not logged-in users)
+      if (!isLoggedIn) {
+        setCustomerName("");
+        setCustomerEmail("");
+        setCustomerPhone("");
+        setCustomerAddress("");
+        setPassword("");
+        setRePassword("");
+      }
 
     } catch (error) {
       console.error('Unexpected error:', error);
@@ -325,15 +457,12 @@ const CustomOrders = () => {
   };
 
   const isFormValid = () => {
-    return (
+    // Basic required fields
+    const basicFieldsValid = (
       customerName &&
       customerEmail &&
       customerPhone &&
       customerAddress &&
-      password &&
-      rePassword &&
-      password === rePassword &&
-      password.length >= 6 &&
       girlCount &&
       boyCount !== undefined &&
       dog &&
@@ -344,6 +473,20 @@ const CustomOrders = () => {
         (selectedTheme === "festive" && festive) ||
         (selectedTheme === "others" && others)
       )
+    );
+
+    // If logged in, no password required
+    if (isLoggedIn) {
+      return basicFieldsValid;
+    }
+
+    // If not logged in, password validation required
+    return (
+      basicFieldsValid &&
+      password &&
+      rePassword &&
+      password === rePassword &&
+      password.length >= 6
     );
   };
 
@@ -389,6 +532,29 @@ const CustomOrders = () => {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
+                    {/* Display showcase image if available */}
+                    {showcaseImageUrl && (
+                      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                        <h3 className="text-sm font-semibold text-gray-700 mb-2">Reference Image:</h3>
+                        <div className="flex justify-center">
+                          <img
+                            src={showcaseImageUrl}
+                            alt="Showcase reference"
+                            className="max-h-64 rounded-lg shadow-md object-contain"
+                            onError={(e) => {
+                              console.error('Image failed to load:', showcaseImageUrl);
+                              console.log('Image error event:', e);
+                            }}
+                            onLoad={() => console.log('Image loaded successfully:', showcaseImageUrl)}
+                          />
+                        </div>
+                      </div>
+                    )}
+                    {!showcaseImageUrl && (
+                      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                        <p className="text-sm text-yellow-800">No reference image provided. You can still submit your custom order.</p>
+                      </div>
+                    )}
                     <TooltipProvider>
                       <form onSubmit={e => {
                         e.preventDefault();
@@ -650,36 +816,36 @@ const CustomOrders = () => {
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
-                            <Label htmlFor="customerName">Name</Label>
+                            <Label htmlFor="customerName">Name *</Label>
                             <Input
                               id="customerName"
                               value={customerName}
                               onChange={e => setCustomerName(e.target.value)}
                               required
-                              disabled={isLoggedIn}
-                              className={isLoggedIn ? "bg-gray-100 cursor-not-allowed" : ""}
+                              disabled={isLoggedIn && customerName !== ''}
+                              className={isLoggedIn && customerName !== '' ? "bg-gray-100 cursor-not-allowed" : ""}
+                              placeholder={isLoggedIn && !customerName ? "Please enter your name" : ""}
                             />
                           </div>
                           <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="customerAddress">Address</Label>
+                            <Label htmlFor="customerAddress">Address *</Label>
                             <Input
                               id="customerAddress"
                               value={customerAddress}
                               onChange={e => setCustomerAddress(e.target.value)}
                               required
-                              disabled={isLoggedIn}
-                              className={isLoggedIn ? "bg-gray-100 cursor-not-allowed" : ""}
                             />
                           </div>
                           <div className="space-y-2">
-                            <Label htmlFor="customerPhone">Phone</Label>
+                            <Label htmlFor="customerPhone">Phone *</Label>
                             <Input
                               id="customerPhone"
                               value={customerPhone}
                               onChange={e => setCustomerPhone(e.target.value)}
                               required
-                              disabled={isLoggedIn}
-                              className={isLoggedIn ? "bg-gray-100 cursor-not-allowed" : ""}
+                              disabled={isLoggedIn && customerPhone !== ''}
+                              className={isLoggedIn && customerPhone !== '' ? "bg-gray-100 cursor-not-allowed" : ""}
+                              placeholder={isLoggedIn && !customerPhone ? "Please enter your phone number" : ""}
                             />
                           </div>
                           <div className="space-y-2">

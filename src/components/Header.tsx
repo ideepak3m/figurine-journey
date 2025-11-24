@@ -125,15 +125,6 @@ const Header = () => {
                         </div>
                       </DropdownMenuLabel>
                       <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/custom-orders")}>
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        <span>New Custom Order</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                         <LogOut className="mr-2 h-4 w-4" />
                         <span>Logout</span>
@@ -190,15 +181,6 @@ const Header = () => {
                           </p>
                         </div>
                       </DropdownMenuLabel>
-                      <DropdownMenuSeparator />
-                      <DropdownMenuItem onClick={() => navigate("/dashboard")}>
-                        <User className="mr-2 h-4 w-4" />
-                        <span>Dashboard</span>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem onClick={() => navigate("/custom-orders")}>
-                        <ShoppingCart className="mr-2 h-4 w-4" />
-                        <span>New Custom Order</span>
-                      </DropdownMenuItem>
                       <DropdownMenuSeparator />
                       <DropdownMenuItem onClick={handleLogout} className="text-red-600">
                         <LogOut className="mr-2 h-4 w-4" />

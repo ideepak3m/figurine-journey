@@ -28,10 +28,10 @@ export default async function handler(req, res) {
         return res.status(405).json({ error: 'Method not allowed' });
     }
 
-    const { to, subject, templateData } = req.body;
+    const { to, subject, templateData, templateName = 'GeneralEmail' } = req.body;
 
     // Load the email template
-    const templatePath = path.join(process.cwd(), 'email-templates', 'GeneralEmail', 'email.html');
+    const templatePath = path.join(process.cwd(), 'email-templates', templateName, 'email.html');
     let html;
     try {
         html = fs.readFileSync(templatePath, 'utf8');

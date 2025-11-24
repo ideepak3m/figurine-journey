@@ -23,8 +23,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const handleAddToCart = () => {
     if (!isAvailable) {
+      console.log('Showcase item clicked, asset_url:', product.asset_url);
+      const encodedUrl = encodeURIComponent(product.asset_url || '');
+      console.log('Encoded URL:', encodedUrl);
       toast.info("This is a showcase item and cannot be purchased directly. Please contact us for custom orders!");
-      navigate('/custom-orders');
+      navigate(`/custom-orders?showcaseImage=${encodedUrl}`);
       return;
     }
 
@@ -52,8 +55,11 @@ const ProductCard = ({ product }: ProductCardProps) => {
   };
 
   const handleCustomize = () => {
-    // Navigate to custom order page
-    navigate('/custom-orders');
+    // Navigate to custom order page with showcase image
+    console.log('Customize clicked, asset_url:', product.asset_url);
+    const encodedUrl = encodeURIComponent(product.asset_url || '');
+    console.log('Encoded URL for customize:', encodedUrl);
+    navigate(`/custom-orders?showcaseImage=${encodedUrl}`);
   };
 
   const handleViewDetails = () => {
@@ -97,7 +103,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
           <>
             <Button
               className="flex-1"
-              onClick={handleAddToCart}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleAddToCart();
+              }}
               disabled={!product.price || added}
             >
               {added ? "Added" : "Add to Cart"}
@@ -105,7 +114,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
             <Button
               variant="outline"
               className="flex-1"
-              onClick={handleCustomize}
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCustomize();
+              }}
             >
               Customize
             </Button>
@@ -114,7 +126,10 @@ const ProductCard = ({ product }: ProductCardProps) => {
         ) : (
           <Button
             className="w-full"
-            onClick={handleCustomize}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleCustomize();
+            }}
           >
             Custom Order
           </Button>

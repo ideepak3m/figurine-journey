@@ -74,34 +74,73 @@ const Cart = () => {
                 source: 'checkout_form',
             });
 
-        setInqLoading(false);
-
         if (error) {
             console.error('Shipping inquiry error:', error);
+            setInqLoading(false);
             toast.error('Failed to submit shipping inquiry. Please try again.');
-        } else {
-            toast.success('Shipping inquiry submitted! We will contact you within 24 hours.');
-            setShowInquiryModal(false);
-
-            // Reset form
-            setInqFirstName("");
-            setInqLastName("");
-            setInqEmail("");
-            setInqPhone("");
-
-            // Mark as calculated with 0 fee (will be quoted later)
-            const province = getProvinceFromPostalCode(postalCode);
-            const taxRate = TAX_RATES[province as keyof typeof TAX_RATES] || TAX_RATES.ON;
-
-            setShippingInfo({
-                postalCode: postalCode.toUpperCase(),
-                isGTA: false,
-                shippingFee: 0, // Will be quoted
-                province,
-                taxRate,
-            });
-            setShippingCalculated(true);
+            return;
         }
+
+        // Send shipping inquiry confirmation email
+        try {
+            // Prepare order items HTML
+            const orderImagesHtml = items.map(item =>
+                item.imageUrl ? `<img src="${item.imageUrl}" alt="${item.title}" style="max-width:200px; margin:10px;" />` : ''
+            ).join('');
+
+            const emailUrl = import.meta.env.VITE_EMAIL_SERVICE_URL || window.location.origin;
+            console.log('Sending shipping inquiry email to:', emailUrl + '/api/send-email');
+
+            const emailResponse = await fetch(emailUrl + '/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    to: inqEmail,
+                    cc: 'info@figureit.ca',
+                    subject: 'Shipping Inquiry Received - Figure It!',
+                    templateData: {
+                        orderItem: orderImagesHtml,
+                        customerName: fullName,
+                        postalCode: postalCode.toUpperCase(),
+                        email: inqEmail,
+                        phone: inqPhone || 'Not provided',
+                    },
+                    templateName: 'ShippingEnquiries',
+                }),
+            });
+
+            if (!emailResponse.ok) {
+                console.error('Email sending failed:', await emailResponse.text());
+            } else {
+                console.log('Shipping inquiry email sent successfully');
+            }
+        } catch (emailError) {
+            console.error('Email sending error:', emailError);
+            // Don't fail the inquiry if email fails
+        }
+
+        setInqLoading(false);
+        toast.success('Shipping inquiry submitted! We will contact you within 24 hours.');
+        setShowInquiryModal(false);
+
+        // Reset form
+        setInqFirstName("");
+        setInqLastName("");
+        setInqEmail("");
+        setInqPhone("");
+
+        // Mark as calculated with 0 fee (will be quoted later)
+        const province = getProvinceFromPostalCode(postalCode);
+        const taxRate = TAX_RATES[province as keyof typeof TAX_RATES] || TAX_RATES.ON;
+
+        setShippingInfo({
+            postalCode: postalCode.toUpperCase(),
+            isGTA: false,
+            shippingFee: 0, // Will be quoted
+            province,
+            taxRate,
+        });
+        setShippingCalculated(true);
     };
 
     const handleCalculateShipping = () => {

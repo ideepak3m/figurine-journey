@@ -19,6 +19,7 @@ import Login from "@/pages/Login";
 import ResetPassword from "@/pages/ResetPassword";
 import Register from "@/pages/Register";
 import RegisterCallback from "./pages/RegisterCallback";
+import { Analytics } from "@vercel/analytics/react";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
           <Route path="/reset-password" element={<ResetPassword />} />
         </Routes>
       </HashRouter>
+      <Analytics />
     </TooltipProvider>
   </QueryClientProvider>
 );

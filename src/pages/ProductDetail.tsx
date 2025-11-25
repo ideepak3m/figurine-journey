@@ -18,10 +18,14 @@ const ProductDetail = () => {
 
     const { data: product, isLoading, error } = useProduct(id || '');
     const addItem = useCartStore((state) => state.addItem);
+    const items = useCartStore((state) => state.items);
 
     // Determine if product is available for purchase
     const isAvailable = product?.asset_status === 'inventory';
     const statusLabel = isAvailable ? 'Available' : 'Showcase';
+
+    // Check if product is already in cart
+    const isInCart = product ? items.some(item => item.assetId === product.id) : false;
 
     const handleAddToCart = () => {
         if (!product) {
@@ -231,10 +235,10 @@ const ProductDetail = () => {
                                             className="w-full"
                                             size="lg"
                                             onClick={handleAddToCart}
-                                            disabled={!product.price}
+                                            disabled={!product.price || isInCart}
                                         >
                                             <ShoppingCart className="mr-2 h-5 w-5" />
-                                            Add to Cart
+                                            {isInCart ? "In Cart" : "Add to Cart"}
                                         </Button>
                                         <div className="bg-yellow-50 border border-yellow-200 rounded p-4 text-yellow-900 text-sm flex flex-col gap-2">
                                             <h1><span className="font-semibold text-base">🛎️ Custom Orders Available — But Not Modifications</span></h1>

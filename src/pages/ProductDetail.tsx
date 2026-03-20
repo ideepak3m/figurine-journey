@@ -81,7 +81,7 @@ const ProductDetail = () => {
         if (!product.price) {
             return (
                 <div className="text-3xl font-bold text-primary">
-                    Price not available
+                    Ask for a Quote
                 </div>
             );
         }
@@ -191,11 +191,31 @@ const ProductDetail = () => {
                     <div className="grid md:grid-cols-2 gap-12">
                         {/* Product Image */}
                         <div className="aspect-square overflow-hidden rounded-lg flex items-center justify-center bg-muted">
-                            <img
-                                src={product.asset_url}
-                                alt={product.title || 'Product'}
-                                className="w-[85%] h-[85%] object-contain"
-                            />
+                            {(() => {
+                                const url = product.asset_url?.toLowerCase() ?? '';
+                                const isVideo =
+                                    product.asset_type?.toLowerCase().includes('video') ||
+                                    url.includes('.mp4') ||
+                                    url.includes('.webm') ||
+                                    url.includes('.mov');
+                                return isVideo ? (
+                                    <video
+                                        src={product.asset_url}
+                                        className="w-[85%] h-[85%] object-contain"
+                                        autoPlay
+                                        muted
+                                        loop
+                                        playsInline
+                                        controls
+                                    />
+                                ) : (
+                                    <img
+                                        src={product.asset_url}
+                                        alt={product.title || 'Product'}
+                                        className="w-[85%] h-[85%] object-contain"
+                                    />
+                                );
+                            })()}
                         </div>
 
                         {/* Product Info */}

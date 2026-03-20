@@ -532,394 +532,378 @@ const CustomOrders = () => {
             </div>
           ) : (
             <div className="flex flex-col md:flex-row gap-8 items-start">
-              <div className="flex-1 min-w-0 max-w-3xl mx-auto">
-                <Card>
-                  <CardHeader>
-                    <CardTitle className="text-2xl">
-                      With reference to the photo you've uploaded, please specify number
-                      of elements:
-                    </CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    {/* Display showcase image if available */}
-                    {showcaseImageUrl && (
-                      <div className="mb-6 p-4 bg-gray-50 rounded-lg">
-                        <h3 className="text-sm font-semibold text-gray-700 mb-2">Reference Image:</h3>
-                        <div className="flex justify-center">
-                          <img
-                            src={showcaseImageUrl}
-                            alt="Showcase reference"
-                            className="max-h-64 rounded-lg shadow-md object-contain"
-                            onError={(e) => {
-                              console.error('Image failed to load:', showcaseImageUrl);
-                              console.log('Image error event:', e);
-                            }}
-                            onLoad={() => console.log('Image loaded successfully:', showcaseImageUrl)}
-                          />
+              <div className="flex-1 min-w-0">
+                <div className="max-w-3xl mx-auto">
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="text-2xl">
+                        With reference to the photo you've uploaded, please specify number
+                        of elements:
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {/* Display showcase image if available */}
+                      {showcaseImageUrl && (
+                        <div className="mb-6 p-4 bg-gray-50 rounded-lg">
+                          <h3 className="text-sm font-semibold text-gray-700 mb-2">Reference Image:</h3>
+                          <div className="flex justify-center">
+                            <img
+                              src={showcaseImageUrl}
+                              alt="Showcase reference"
+                              className="max-h-64 rounded-lg shadow-md object-contain"
+                              onError={(e) => {
+                                console.error('Image failed to load:', showcaseImageUrl);
+                                console.log('Image error event:', e);
+                              }}
+                              onLoad={() => console.log('Image loaded successfully:', showcaseImageUrl)}
+                            />
+                          </div>
                         </div>
-                      </div>
-                    )}
-                    {!showcaseImageUrl && (
-                      <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
-                        <p className="text-sm text-yellow-800">No reference image provided. You can still submit your custom order.</p>
-                      </div>
-                    )}
-                    <TooltipProvider>
-                      <form onSubmit={e => {
-                        e.preventDefault();
-                        setFormTouched(true);
-                        if (isFormValid()) handleSubmit(e);
-                      }} className="space-y-8">
+                      )}
+                      {!showcaseImageUrl && (
+                        <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                          <p className="text-sm text-yellow-800">No reference image provided. You can still submit your custom order.</p>
+                        </div>
+                      )}
+                      <TooltipProvider>
+                        <form onSubmit={e => {
+                          e.preventDefault();
+                          setFormTouched(true);
+                          if (isFormValid()) handleSubmit(e);
+                        }} className="space-y-8">
 
-                        {/* Number of elements */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label>Number of girl figurine – 0, 1, 2, 3, 4</Label>
-                            <Select
-                              value={girlCount}
-                              onValueChange={setGirlCount}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {["0", "1", "2", "3", "4"].map((v) => (
-                                  <SelectItem key={v} value={v}>
-                                    {v}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>Number of boy figurine – 0, 1, 2, 3, 4</Label>
-                            <Select
-                              value={boyCount}
-                              onValueChange={setBoyCount}
-                            >
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {["0", "1", "2", "3", "4"].map((v) => (
-                                  <SelectItem key={v} value={v}>
-                                    {v}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          {/* Figurine count error message */}
-                          {figurineLimitError && (
-                            <div className="col-span-2">
-                              <p className="text-red-600 text-sm mt-2">
-                                Total number of figurines (girl + boy) cannot exceed 4. Please adjust your selection.
-                              </p>
+                          {/* Number of elements */}
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div className="space-y-2">
+                              <Label>Number of girl figurine – 0, 1, 2, 3, 4</Label>
+                              <Select
+                                value={girlCount}
+                                onValueChange={setGirlCount}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {["0", "1", "2", "3", "4"].map((v) => (
+                                    <SelectItem key={v} value={v}>
+                                      {v}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
                             </div>
-                          )}
-                          <div className="space-y-2">
-                            <Label>One dog figurine</Label>
-                            <Select value={dog} onValueChange={setDog}>
-                              <SelectTrigger>
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="yes">yes</SelectItem>
-                                <SelectItem value="no">no</SelectItem>
-                              </SelectContent>
-                            </Select>
+                            <div className="space-y-2">
+                              <Label>Number of boy figurine – 0, 1, 2, 3, 4</Label>
+                              <Select
+                                value={boyCount}
+                                onValueChange={setBoyCount}
+                              >
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {["0", "1", "2", "3", "4"].map((v) => (
+                                    <SelectItem key={v} value={v}>
+                                      {v}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            {/* Figurine count error message */}
+                            {figurineLimitError && (
+                              <div className="col-span-2">
+                                <p className="text-red-600 text-sm mt-2">
+                                  Total number of figurines (girl + boy) cannot exceed 4. Please adjust your selection.
+                                </p>
+                              </div>
+                            )}
+                            <div className="space-y-2">
+                              <Label>One dog figurine</Label>
+                              <Select value={dog} onValueChange={setDog}>
+                                <SelectTrigger>
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="yes">yes</SelectItem>
+                                  <SelectItem value="no">no</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                            <div className="space-y-2">
+                              <Label>Embellishments as suitable (if required) – yes, no
+                                <Tooltip>
+                                  <TooltipTrigger asChild>
+                                    <span className="ml-1 text-blue-500 hover:text-blue-700 cursor-pointer"><Info className="h-4 w-4" /></span>
+                                  </TooltipTrigger>
+                                  <TooltipContent>
+                                    <span>Embellishments features - </span><br />
+                                    <span>available one-of-a-kind small objects (flowers, hearts etc.)</span><br />
+                                    <span>adding charm and vibrancy to your FIGUREIT</span><br />
+                                    <span>with their whimsical colors and delicate textures </span>
+                                  </TooltipContent>
+                                </Tooltip>
+                              </Label>
+                              <Select value={embellishments} onValueChange={setEmbellishments}>
+                                <SelectTrigger><SelectValue /></SelectTrigger>
+                                <SelectContent>
+                                  <SelectItem value="yes">yes</SelectItem>
+                                  <SelectItem value="no">no</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
                           </div>
-                          <div className="space-y-2">
-                            <Label>Embellishments as suitable (if required) – yes, no
-                              <Tooltip>
-                                <TooltipTrigger asChild>
-                                  <span className="ml-1 text-blue-500 hover:text-blue-700 cursor-pointer"><Info className="h-4 w-4" /></span>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                  <span>Embellishments features - </span><br />
-                                  <span>available one-of-a-kind small objects (flowers, hearts etc.)</span><br />
-                                  <span>adding charm and vibrancy to your FIGUREIT</span><br />
-                                  <span>with their whimsical colors and delicate textures </span>
-                                </TooltipContent>
-                              </Tooltip>
-                            </Label>
-                            <Select value={embellishments} onValueChange={setEmbellishments}>
-                              <SelectTrigger><SelectValue /></SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="yes">yes</SelectItem>
-                                <SelectItem value="no">no</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
 
-                        {/* Final presentation */}
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 mb-2">
-                            <span className="font-semibold text-base bg-blue-600 text-white px-3 py-1 rounded">
-                              Final presentation:
-                            </span>
-                          </div>
-                          <div className="flex flex-col gap-2 ml-2">
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="presentation"
-                                value="shadowbox"
-                                checked={presentation === "shadowbox"}
-                                onChange={() => setPresentation("shadowbox")}
-                              />
-                              10"x 10" shadow box
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <span className="ml-1 text-blue-500 hover:text-blue-700 cursor-pointer">
-                                    <Info className="h-4 w-4" />
-                                  </span>
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-64 p-2 flex flex-col items-center">
-                                  <img
-                                    src={shadowBoxSample}
-                                    alt="Shadow Box Sample"
-                                    className="rounded mb-2 max-h-40"
-                                  />
-                                  <span className="text-xs text-muted-foreground">
-                                    Shadow box sample
-                                  </span>
-                                </HoverCardContent>
-                              </HoverCard>
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="presentation"
-                                value="glassdome"
-                                checked={presentation === "glassdome"}
-                                onChange={() => setPresentation("glassdome")}
-                                disabled={totalFigurines >= 4}
-                              />
-                              <span className={totalFigurines >= 4 ? "text-gray-400" : undefined}>
-                                Glass dome with base
+                          {/* Final presentation */}
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 mb-2">
+                              <span className="font-semibold text-base bg-blue-600 text-white px-3 py-1 rounded">
+                                Final presentation:
                               </span>
-                              <HoverCard>
-                                <HoverCardTrigger asChild>
-                                  <span className={"ml-1 " + (totalFigurines >= 4 ? "text-gray-400" : "text-blue-500 hover:text-blue-700") + " cursor-pointer"}>
-                                    <Info className="h-4 w-4" />
-                                  </span>
-                                </HoverCardTrigger>
-                                <HoverCardContent className="w-64 p-2 flex flex-col items-center">
-                                  <img
-                                    src={glassDomeSample}
-                                    alt="Glass Dome Sample"
-                                    className="rounded mb-2 max-h-40"
-                                  />
-                                  <span className="text-xs text-muted-foreground">
-                                    Glass dome sample
-                                  </span>
-                                </HoverCardContent>
-                              </HoverCard>
-                            </label>
+                            </div>
+                            <div className="flex flex-col gap-2 ml-2">
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="presentation"
+                                  value="shadowbox"
+                                  checked={presentation === "shadowbox"}
+                                  onChange={() => setPresentation("shadowbox")}
+                                />
+                                10"x 10" shadow box
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <span className="ml-1 text-blue-500 hover:text-blue-700 cursor-pointer">
+                                      <Info className="h-4 w-4" />
+                                    </span>
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-64 p-2 flex flex-col items-center">
+                                    <img
+                                      src={shadowBoxSample}
+                                      alt="Shadow Box Sample"
+                                      className="rounded mb-2 max-h-40"
+                                    />
+                                    <span className="text-xs text-muted-foreground">
+                                      Shadow box sample
+                                    </span>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              </label>
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="presentation"
+                                  value="glassdome"
+                                  checked={presentation === "glassdome"}
+                                  onChange={() => setPresentation("glassdome")}
+                                  disabled={totalFigurines >= 4}
+                                />
+                                <span className={totalFigurines >= 4 ? "text-gray-400" : undefined}>
+                                  Glass dome with base
+                                </span>
+                                <HoverCard>
+                                  <HoverCardTrigger asChild>
+                                    <span className={"ml-1 " + (totalFigurines >= 4 ? "text-gray-400" : "text-blue-500 hover:text-blue-700") + " cursor-pointer"}>
+                                      <Info className="h-4 w-4" />
+                                    </span>
+                                  </HoverCardTrigger>
+                                  <HoverCardContent className="w-64 p-2 flex flex-col items-center">
+                                    <img
+                                      src={glassDomeSample}
+                                      alt="Glass Dome Sample"
+                                      className="rounded mb-2 max-h-40"
+                                    />
+                                    <span className="text-xs text-muted-foreground">
+                                      Glass dome sample
+                                    </span>
+                                  </HoverCardContent>
+                                </HoverCard>
+                              </label>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Theme/occasion */}
-                        <div className="space-y-2">
-                          <div className="font-semibold text-base bg-blue-600 text-white px-3 py-1 rounded mb-2">
-                            Select theme/occasion:
-                          </div>
-                          <div className="grid grid-cols-2 gap-2">
-                            {themes.map((theme) => (
-                              <label key={theme} className="flex items-center gap-2">
+                          {/* Theme/occasion */}
+                          <div className="space-y-2">
+                            <div className="font-semibold text-base bg-blue-600 text-white px-3 py-1 rounded mb-2">
+                              Select theme/occasion:
+                            </div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {themes.map((theme) => (
+                                <label key={theme} className="flex items-center gap-2">
+                                  <input
+                                    type="radio"
+                                    name="theme"
+                                    value={theme}
+                                    checked={selectedTheme === theme}
+                                    onChange={() => setSelectedTheme(theme)}
+                                  />
+                                  {theme}
+                                </label>
+                              ))}
+                              <label className="flex items-center gap-2">
                                 <input
                                   type="radio"
                                   name="theme"
-                                  value={theme}
-                                  checked={selectedTheme === theme}
-                                  onChange={() => setSelectedTheme(theme)}
+                                  value="festive"
+                                  checked={selectedTheme === "festive"}
+                                  onChange={() => setSelectedTheme("festive")}
                                 />
-                                {theme}
+                                Festive –
+                                <Input
+                                  value={festive}
+                                  onChange={e => setFestive(e.target.value)}
+                                  className="w-24"
+                                  placeholder="Type..."
+                                  disabled={selectedTheme !== "festive"}
+                                />
                               </label>
-                            ))}
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="theme"
-                                value="festive"
-                                checked={selectedTheme === "festive"}
-                                onChange={() => setSelectedTheme("festive")}
-                              />
-                              Festive –
-                              <Input
-                                value={festive}
-                                onChange={e => setFestive(e.target.value)}
-                                className="w-24"
-                                placeholder="Type..."
-                                disabled={selectedTheme !== "festive"}
-                              />
-                            </label>
-                            <label className="flex items-center gap-2">
-                              <input
-                                type="radio"
-                                name="theme"
-                                value="others"
-                                checked={selectedTheme === "others"}
-                                onChange={() => setSelectedTheme("others")}
-                              />
-                              Others –
-                              <Input
-                                value={others}
-                                onChange={e => setOthers(e.target.value)}
-                                className="w-24"
-                                placeholder="Type..."
-                                disabled={selectedTheme !== "others"}
-                              />
-                            </label>
+                              <label className="flex items-center gap-2">
+                                <input
+                                  type="radio"
+                                  name="theme"
+                                  value="others"
+                                  checked={selectedTheme === "others"}
+                                  onChange={() => setSelectedTheme("others")}
+                                />
+                                Others –
+                                <Input
+                                  value={others}
+                                  onChange={e => setOthers(e.target.value)}
+                                  className="w-24"
+                                  placeholder="Type..."
+                                  disabled={selectedTheme !== "others"}
+                                />
+                              </label>
+                            </div>
                           </div>
-                        </div>
 
-                        {/* Photo Upload */}
-                        <div className="mb-6">
-                          <Label htmlFor="photoUpload" className="block mb-2 font-semibold">Upload up to 3 reference photos (optional):</Label>
-                          <Input
-                            id="photoUpload"
-                            type="file"
-                            accept="image/*"
-                            multiple
-                            onChange={e => {
-                              const files = Array.from(e.target.files || []);
-                              let newFiles = [...photoFiles, ...files];
-                              // Remove duplicates by name
-                              newFiles = newFiles.filter((file, idx, arr) => arr.findIndex(f => f.name === file.name) === idx);
-                              if (newFiles.length > 3) {
-                                alert("You can only upload up to 3 images.");
-                                newFiles = newFiles.slice(0, 3);
-                              }
-                              setPhotoFiles(newFiles);
-                              // Reset input so user can re-select the same file if needed
-                              e.target.value = "";
-                            }}
-                          />
-                          <div className="text-xs text-muted-foreground mt-1">Maximum 3 images allowed. Only image files are accepted.</div>
-                          {photoFiles.length > 0 && (
-                            <ul className="mt-2 text-sm text-muted-foreground">
-                              {photoFiles.map((file, idx) => (
-                                <li key={file.name + idx} className="flex items-center gap-2">
-                                  <span>{file.name}</span>
-                                  <button
-                                    type="button"
-                                    className="text-red-500 hover:underline text-xs"
-                                    onClick={() => {
-                                      setPhotoFiles(photoFiles.filter((_, i) => i !== idx));
-                                    }}
-                                  >
-                                    Remove
-                                  </button>
-                                </li>
-                              ))}
-                            </ul>
-                          )}
-                        </div>
+                          {/* Photo Upload */}
+                          <div className="mb-6">
+                            <Label htmlFor="photoUpload" className="block mb-2 font-semibold">Upload up to 3 reference photos (optional):</Label>
+                            <Input
+                              id="photoUpload"
+                              type="file"
+                              accept="image/*"
+                              multiple
+                              onChange={e => {
+                                const files = Array.from(e.target.files || []);
+                                let newFiles = [...photoFiles, ...files];
+                                // Remove duplicates by name
+                                newFiles = newFiles.filter((file, idx, arr) => arr.findIndex(f => f.name === file.name) === idx);
+                                if (newFiles.length > 3) {
+                                  alert("You can only upload up to 3 images.");
+                                  newFiles = newFiles.slice(0, 3);
+                                }
+                                setPhotoFiles(newFiles);
+                                // Reset input so user can re-select the same file if needed
+                                e.target.value = "";
+                              }}
+                            />
+                            <div className="text-xs text-muted-foreground mt-1">Maximum 3 images allowed. Only image files are accepted.</div>
+                            {photoFiles.length > 0 && (
+                              <ul className="mt-2 text-sm text-muted-foreground">
+                                {photoFiles.map((file, idx) => (
+                                  <li key={file.name + idx} className="flex items-center gap-2">
+                                    <span>{file.name}</span>
+                                    <button
+                                      type="button"
+                                      className="text-red-500 hover:underline text-xs"
+                                      onClick={() => {
+                                        setPhotoFiles(photoFiles.filter((_, i) => i !== idx));
+                                      }}
+                                    >
+                                      Remove
+                                    </button>
+                                  </li>
+                                ))}
+                              </ul>
+                            )}
+                          </div>
 
-                        {/* Customer Details */}
-                        <div className="font-semibold text-base bg-blue-600 text-white px-3 py-1 rounded mb-2">
-                          {isLoggedIn ? 'Your Information' : 'Create User Login'}
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div className="space-y-2">
-                            <Label htmlFor="customerName">Name *</Label>
-                            <Input
-                              id="customerName"
-                              value={customerName}
-                              onChange={e => setCustomerName(e.target.value)}
-                              required
-                              disabled={isLoggedIn && customerName !== ''}
-                              className={isLoggedIn && customerName !== '' ? "bg-gray-100 cursor-not-allowed" : ""}
-                              placeholder={isLoggedIn && !customerName ? "Please enter your name" : ""}
-                            />
+                          {/* Customer Details */}
+                          <div className="font-semibold text-base bg-blue-600 text-white px-3 py-1 rounded mb-2">
+                            {isLoggedIn ? 'Your Information' : 'Create User Login'}
                           </div>
-                          <div className="space-y-2 md:col-span-2">
-                            <Label htmlFor="customerAddress">Address *</Label>
-                            <Input
-                              id="customerAddress"
-                              value={customerAddress}
-                              onChange={e => setCustomerAddress(e.target.value)}
-                              required
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="customerPhone">Phone *</Label>
-                            <Input
-                              id="customerPhone"
-                              value={customerPhone}
-                              onChange={e => setCustomerPhone(e.target.value)}
-                              required
-                              disabled={isLoggedIn && customerPhone !== ''}
-                              className={isLoggedIn && customerPhone !== '' ? "bg-gray-100 cursor-not-allowed" : ""}
-                              placeholder={isLoggedIn && !customerPhone ? "Please enter your phone number" : ""}
-                            />
-                          </div>
-                          <div className="space-y-2">
-                            <Label htmlFor="customerEmail">Email</Label>
-                            <Input
-                              id="customerEmail"
-                              type="email"
-                              value={customerEmail}
-                              onChange={e => setCustomerEmail(e.target.value)}
-                              required
-                            />
-                          </div>
-                        </div>
-
-                        {/* Password fields - only show if not logged in */}
-                        {!isLoggedIn && (
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             <div className="space-y-2">
-                              <Label htmlFor="password">Password (minimum 6 characters)</Label>
-                              <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+                              <Label htmlFor="customerName">Name *</Label>
+                              <Input
+                                id="customerName"
+                                value={customerName}
+                                onChange={e => setCustomerName(e.target.value)}
+                                required
+                                disabled={isLoggedIn && customerName !== ''}
+                                className={isLoggedIn && customerName !== '' ? "bg-gray-100 cursor-not-allowed" : ""}
+                                placeholder={isLoggedIn && !customerName ? "Please enter your name" : ""}
+                              />
+                            </div>
+                            <div className="space-y-2 md:col-span-2">
+                              <Label htmlFor="customerAddress">Address *</Label>
+                              <Input
+                                id="customerAddress"
+                                value={customerAddress}
+                                onChange={e => setCustomerAddress(e.target.value)}
+                                required
+                              />
                             </div>
                             <div className="space-y-2">
-                              <Label htmlFor="rePassword">Re-enter Password</Label>
-                              <Input id="rePassword" type="password" value={rePassword} onChange={e => setRePassword(e.target.value)} required minLength={6} />
-                              {formTouched && password !== rePassword && rePassword && (
-                                <p className="text-xs text-red-600">Passwords do not match</p>
-                              )}
+                              <Label htmlFor="customerPhone">Phone *</Label>
+                              <Input
+                                id="customerPhone"
+                                value={customerPhone}
+                                onChange={e => setCustomerPhone(e.target.value)}
+                                required
+                                disabled={isLoggedIn && customerPhone !== ''}
+                                className={isLoggedIn && customerPhone !== '' ? "bg-gray-100 cursor-not-allowed" : ""}
+                                placeholder={isLoggedIn && !customerPhone ? "Please enter your phone number" : ""}
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="customerEmail">Email</Label>
+                              <Input
+                                id="customerEmail"
+                                type="email"
+                                value={customerEmail}
+                                onChange={e => setCustomerEmail(e.target.value)}
+                                required
+                              />
                             </div>
                           </div>
-                        )}
 
-                        <Button
-                          type="submit"
-                          className="w-full mt-4"
-                          disabled={!isFormValid() || isSubmitting || figurineLimitError}
-                        >
-                          {isSubmitting ? "Submitting..." : "Submit Custom Order"}
-                        </Button>
-                      </form>
-                    </TooltipProvider>
-                  </CardContent>
-                </Card>
+                          {/* Password fields - only show if not logged in */}
+                          {!isLoggedIn && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="password">Password (minimum 6 characters)</Label>
+                                <Input id="password" type="password" value={password} onChange={e => setPassword(e.target.value)} required minLength={6} />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="rePassword">Re-enter Password</Label>
+                                <Input id="rePassword" type="password" value={rePassword} onChange={e => setRePassword(e.target.value)} required minLength={6} />
+                                {formTouched && password !== rePassword && rePassword && (
+                                  <p className="text-xs text-red-600">Passwords do not match</p>
+                                )}
+                              </div>
+                            </div>
+                          )}
+
+                          <Button
+                            type="submit"
+                            className="w-full mt-4"
+                            disabled={!isFormValid() || isSubmitting || figurineLimitError}
+                          >
+                            {isSubmitting ? "Submitting..." : "Submit Custom Order"}
+                          </Button>
+                        </form>
+                      </TooltipProvider>
+                    </CardContent>
+                  </Card>
+                </div>
               </div>
-
-              {/* Cost Side Box */}
               <div className="w-full md:w-80 shrink-0">
-                <Card className="sticky top-24">
-                  <CardHeader>
-                    <CardTitle className="text-xl">Order Summary</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-2">
-                      <div className="flex justify-between"><span>Girl figurines</span><span>${parseInt(girlCount, 10) * 30}</span></div>
-                      <div className="flex justify-between"><span>Boy figurines</span><span>${parseInt(boyCount, 10) * 30}</span></div>
-                      <div className="flex justify-between"><span>Dog figurine</span><span>${dog === "yes" ? 30 : 0}</span></div>
-                      <div className="flex justify-between"><span>Presentation</span><span>{presentation === "shadowbox" ? "$30" : presentation === "glassdome" ? "$40" : "$0"}</span></div>
-                      <div className="flex justify-between"><span>Embellishments</span><span>Included</span></div>
-                      <hr />
-                      <div className="flex justify-between font-bold text-lg"><span>Total</span><span>${getTotal(girlCount, boyCount, dog, presentation)}</span></div>
-                    </div>
-                    <div className="pt-6">
-                      <TestimonialCarousel visibleCount={5} />
-                    </div>
-                  </CardContent>
-                </Card>
+                <div className="sticky top-24">
+                  <TestimonialCarousel visibleCount={5} />
+                </div>
               </div>
             </div>
           )}

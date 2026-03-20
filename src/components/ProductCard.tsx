@@ -78,7 +78,7 @@ const ProductCard = ({ product }: ProductCardProps) => {
 
   const renderPrice = () => {
     if (!product.price) {
-      return <p className="text-2xl font-bold text-primary">Price not available</p>;
+      return <p className="text-2xl font-bold text-primary">Ask for a Quote</p>;
     }
 
     if (product.discounted_price && product.discounted_price < product.price) {
@@ -102,12 +102,31 @@ const ProductCard = ({ product }: ProductCardProps) => {
         className="aspect-square overflow-hidden relative flex items-center justify-center bg-muted"
         onClick={handleViewDetails}
       >
-        <img
-          src={product.asset_url}
-          alt={product.title || 'Product'}
-          className="w-[65%] h-[65%] object-contain transition-transform duration-300 group-hover:scale-105"
-          loading="lazy"
-        />
+        {(() => {
+          const url = product.asset_url?.toLowerCase() ?? '';
+          const isVideo =
+            product.asset_type?.toLowerCase().includes('video') ||
+            url.includes('.mp4') ||
+            url.includes('.webm') ||
+            url.includes('.mov');
+          return isVideo ? (
+            <video
+              src={product.asset_url}
+              className="w-[65%] h-[65%] object-contain transition-transform duration-300 group-hover:scale-105"
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+          ) : (
+            <img
+              src={product.asset_url}
+              alt={product.title || 'Product'}
+              className="w-[65%] h-[65%] object-contain transition-transform duration-300 group-hover:scale-105"
+              loading="lazy"
+            />
+          );
+        })()}
         {/* Status Badge */}
         <div className={`absolute top-4 right-4 px-3 py-1 rounded-full text-xs font-semibold ${isAvailable
           ? 'bg-green-500/90 text-white'
@@ -115,6 +134,12 @@ const ProductCard = ({ product }: ProductCardProps) => {
           }`}>
           {statusLabel}
         </div>
+        {/* Title Overlay */}
+        {product.title && (
+          <div className="absolute bottom-0 inset-x-0 bg-gradient-to-t from-black/70 to-transparent px-3 py-2">
+            <p className="text-white text-sm font-semibold truncate">{product.title}</p>
+          </div>
+        )}
       </div>
       <CardContent className="p-6" onClick={handleViewDetails}>
         <h3 className="text-xl font-semibold mb-2">{product.title || 'Untitled Product'}</h3>

@@ -23,6 +23,8 @@ import { supabase } from "@/lib/supabase";
 import shadowBoxSample from "@/assets/shadow-box-sample.png";
 import glassDomeSample from "@/assets/glassdome-sample.png";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
+import { Helmet } from "react-helmet-async";
+import { getPageMetadata } from "@/lib/seo";
 import Modal from "@/components/ui/modal";
 
 const CustomOrders = () => {
@@ -33,6 +35,7 @@ const CustomOrders = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const metadata = getPageMetadata("/custom-orders");
   const [showcaseImageUrl, setShowcaseImageUrl] = useState<string | null>(null);
   const [girlCount, setGirlCount] = useState("1");
   const [boyCount, setBoyCount] = useState("0");
@@ -516,6 +519,19 @@ const CustomOrders = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <meta name="keywords" content={metadata.keywords} />
+        <link rel="canonical" href={metadata.canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={metadata.title} />
+        <meta property="og:description" content={metadata.description} />
+        <meta property="og:type" content={metadata.ogType} />
+        <meta property="og:url" content={metadata.canonicalUrl} />
+      </Helmet>
+
       <Header />
       <main className="flex-1 py-12">
         <div className="container mx-auto px-4 max-w-7xl">

@@ -7,9 +7,12 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Mail, MapPin, MessageCircle } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { Helmet } from "react-helmet-async";
+import { getPageMetadata } from "@/lib/seo";
 
 const Contact = () => {
   const { toast } = useToast();
+  const metadata = getPageMetadata("/contact");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -21,6 +24,19 @@ const Contact = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <meta name="keywords" content={metadata.keywords} />
+        <link rel="canonical" href={metadata.canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={metadata.title} />
+        <meta property="og:description" content={metadata.description} />
+        <meta property="og:type" content={metadata.ogType} />
+        <meta property="og:url" content={metadata.canonicalUrl} />
+      </Helmet>
+
       <Header />
 
       <main className="flex-1 py-12">

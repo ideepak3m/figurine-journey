@@ -9,9 +9,12 @@ import { useAssetCategories } from "@/hooks/useCategories";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { AlertCircle } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { getPageMetadata } from "@/lib/seo";
 
 const Shop = () => {
   const [selectedCategory, setSelectedCategory] = useState("all");
+  const metadata = getPageMetadata("/shop");
 
   // Fetch products from Supabase
   const { data: products, isLoading, error } = useProducts({
@@ -38,6 +41,19 @@ const Shop = () => {
 
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <meta name="keywords" content={metadata.keywords} />
+        <link rel="canonical" href={metadata.canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={metadata.title} />
+        <meta property="og:description" content={metadata.description} />
+        <meta property="og:type" content={metadata.ogType} />
+        <meta property="og:url" content={metadata.canonicalUrl} />
+      </Helmet>
+
       <Header />
 
       <main className="flex-1 py-12">

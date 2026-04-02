@@ -6,6 +6,9 @@ import Footer from "@/components/Footer";
 import ProductCard from "@/components/ProductCard";
 import { useProducts } from "@/hooks/useProducts";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Helmet } from "react-helmet-async";
+import { getPageMetadata } from "@/lib/seo";
+import { generateLocalBusinessSchema, getSchemaScriptContent } from "@/lib/structured-data";
 import {
   Carousel,
   CarouselContent,
@@ -24,6 +27,8 @@ import banner7 from "@/assets/banner-7.jpg";
 const Index = () => {
   // Fetch featured products from Supabase (limit to 3)
   const { data: products, isLoading } = useProducts({ limit: 3 });
+  const metadata = getPageMetadata("/");
+  const businessSchema = generateLocalBusinessSchema();
 
   const bannerImages = [
     {
@@ -64,6 +69,25 @@ const Index = () => {
 
   return (
     <>
+      <Helmet>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <meta name="keywords" content={metadata.keywords} />
+        <link rel="canonical" href={metadata.canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={metadata.title} />
+        <meta property="og:description" content={metadata.description} />
+        <meta property="og:type" content={metadata.ogType} />
+        <meta property="og:url" content={metadata.canonicalUrl} />
+        <meta property="og:image" content={metadata.ogImage || "https://figureit.ca/og-image.jpg"} />
+
+        {/* Structured Data */}
+        <script type="application/ld+json">
+          {getSchemaScriptContent(businessSchema)}
+        </script>
+      </Helmet>
+
       <HomeVideoModal />
       <div className="min-h-screen flex flex-col">
         <Header />

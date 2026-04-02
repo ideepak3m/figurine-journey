@@ -9,6 +9,9 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { TestimonialCarousel } from "@/components/TestimonialCarousel";
 import { AlertCircle, ArrowLeft, ShoppingCart } from "lucide-react";
 import { toast } from "sonner";
+import { Helmet } from "react-helmet-async";
+import { generateTitle, generateCanonicalUrl } from "@/lib/seo";
+import { generateProductSchema, generateBreadcrumbSchema, getSchemaScriptContent } from "@/lib/structured-data";
 // import { useState } from "react";
 
 const ProductDetail = () => {
@@ -26,6 +29,27 @@ const ProductDetail = () => {
 
     // Check if product is already in cart
     const isInCart = product ? items.some(item => item.assetId === product.id) : false;
+
+    // Prepare SEO metadata
+    const pageTitle = product?.title || 'Product';
+    const pageDescription = product?.description?.substring(0, 160) || `View this handcrafted figurine from Figure It.`;
+    const productSchema = product ? generateProductSchema({
+        id: product.id,
+        title: product.title || 'Untitled Product',
+        description: product.description || '',
+        price: product.discounted_price && product.discounted_price < product.price
+            ? product.discounted_price
+            : product.price || 0,
+        imageUrl: product.asset_url,
+        isAvailable: isAvailable,
+    }) : null;
+
+    const breadcrumbs = [
+        { label: 'Home', url: '/' },
+        { label: 'Shop', url: '/shop' },
+        { label: pageTitle, url: generateCanonicalUrl(`/shop/${id}`) }
+    ];
+    const breadcrumbSchema = generateBreadcrumbSchema(breadcrumbs);
 
     const handleAddToCart = () => {
         if (!product) {
@@ -124,6 +148,9 @@ const ProductDetail = () => {
     if (isLoading) {
         return (
             <div className="min-h-screen flex flex-col">
+                <Helmet>
+                    <title>{generateTitle('Product Details')}</title>
+                </Helmet>
                 <Header />
                 <main className="flex-1 py-12">
                     <div className="container mx-auto px-4">
@@ -147,6 +174,9 @@ const ProductDetail = () => {
     if (error || !product) {
         return (
             <div className="min-h-screen flex flex-col">
+                <Helmet>
+                    <title>{generateTitle('Product Not Found')}</title>
+                </Helmet>
                 <Header />
                 <main className="flex-1 py-12">
                     <div className="container mx-auto px-4">
@@ -173,6 +203,32 @@ const ProductDetail = () => {
 
     return (
         <div className="min-h-screen flex flex-col">
+            <Helmet>
+                <title>{generateTitle(pageTitle)}</title>
+                <meta name="description" content={pageDescription} />
+                <link rel="canonical" href={generateCanonicalUrl(`/shop/${id}`)} />
+
+                {/* Open Graph */}
+                <meta property="og:title" content={generateTitle(pageTitle)} />
+                <meta property="og:description" content={pageDescription} />
+                <meta property="og:type" content="product" />
+                <meta property="og:url" content={generateCanonicalUrl(`/shop/${id}`)} />
+                {product?.asset_url && <meta property="og:image" content={product.asset_url} />}
+
+                {/* Product-specific meta */}
+                <meta property="product:price:amount" content={String(product?.discounted_price && product?.discounted_price < product?.price ? product.discounted_price : product?.price)} />
+                <meta property="product:price:currency" content="CAD" />
+                <meta property="product:availability" content={isAvailable ? "in stock" : "out of stock"} />
+
+                {/* Structured Data */}
+                {productSchema && <script type="application/ld+json">
+                    {getSchemaScriptContent(productSchema)}
+                </script>}
+                <script type="application/ld+json">
+                    {getSchemaScriptContent(breadcrumbSchema)}
+                </script>
+            </Helmet>
+
             <Header />
 
             <main className="flex-1 py-12">

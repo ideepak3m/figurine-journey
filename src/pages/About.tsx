@@ -1,10 +1,27 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Heart, Sparkles, Users } from "lucide-react";
+import { Helmet } from "react-helmet-async";
+import { getPageMetadata } from "@/lib/seo";
 
 const About = () => {
+  const metadata = getPageMetadata("/about");
+
   return (
     <div className="min-h-screen flex flex-col">
+      <Helmet>
+        <title>{metadata.title}</title>
+        <meta name="description" content={metadata.description} />
+        <meta name="keywords" content={metadata.keywords} />
+        <link rel="canonical" href={metadata.canonicalUrl} />
+
+        {/* Open Graph */}
+        <meta property="og:title" content={metadata.title} />
+        <meta property="og:description" content={metadata.description} />
+        <meta property="og:type" content={metadata.ogType} />
+        <meta property="og:url" content={metadata.canonicalUrl} />
+      </Helmet>
+
       <Header />
 
       <main className="flex-1">
